@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-11 — feat: application tracker in openpyxl (Prompt 4)
+
+- Implemented `utils/tracker.py` backed by an `.xlsx` workbook via openpyxl
+- `_get_or_create_workbook(path)` loads existing workbook or creates one with bold header row (`Company`, `Role`, `Date Applied`, `Source`, `Match Score`, `Status`, `Follow-up Date`, `Notes`, `Cover Letter Path`)
+- `application_exists(path, company, role) -> bool` performs case-insensitive duplicate detection on company + role pair
+- `add_application(...)` appends a new row, auto-filling `Date Applied` as today, `Status` as `"Applied"`, and `Follow-up Date` as 14 days from today
+- `show_tracker(path)` renders all rows as a formatted Rich table via `rich.table.Table`
+- `get_followups_due(path) -> list[dict]` returns every row where `Status == "Applied"` and `Follow-up Date` is today or earlier, keyed by column header
+
 ## 2026-06-11 — feat: scaffold job_search_tool project (Prompt 1)
 
 - Created `job_search_tool/` directory tree (chains/, utils/, output/{cover_letters,tailored_resumes}/, resume/, data/)
