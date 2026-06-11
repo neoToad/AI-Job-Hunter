@@ -13,7 +13,7 @@ Move everything completed to the [CHANGELOG.md](docs/CHANGELOG.md)
 
 ---
  
-**Output a commit message:**
+**Output a commit message, commit and push to the current github branch:**
 ```
 <type>(<scope>): <summary>
 - <what changed>

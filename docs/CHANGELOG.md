@@ -10,3 +10,9 @@
 - Added minimal `main.py` Typer stub with `verify` command (full CLI deferred to Prompt 9)
 - Added `.gitkeep` files in `resume/` and `data/` to preserve empty layout
 - Added root `.gitignore` (Python/IDE/OS noise, `.env` files, `resume.pdf`, `tracker.xlsx`, generated output files; keeps empty output subdirs via `.gitkeep`)
+
+## 2026-06-11 — feat: LLM factory (Prompt 2)
+
+- Implemented `get_llm(temperature: float = 0.3) -> ChatOllama` in `chains/llm.py`
+- Reads `OLLAMA_BASE_URL` and `OLLAMA_MODEL` from `config.py`; forwards `OLLAMA_API_KEY` as a Bearer authorization header when present (for Ollama Cloud Pro)
+- Single import point for every chain — swapping models/URLs is a one-line change in `.env`
