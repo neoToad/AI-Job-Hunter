@@ -1,0 +1,10 @@
+langchain
+langchain-ollama
+langchain-community
+pdfplumber
+openpyxl
+typer[all]
+rich
+python-dotenv
+pydantic
+requests
