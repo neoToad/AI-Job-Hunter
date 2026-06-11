@@ -16,3 +16,11 @@
 - Implemented `get_llm(temperature: float = 0.3) -> ChatOllama` in `chains/llm.py`
 - Reads `OLLAMA_BASE_URL` and `OLLAMA_MODEL` from `config.py`; forwards `OLLAMA_API_KEY` as a Bearer authorization header when present (for Ollama Cloud Pro)
 - Single import point for every chain — swapping models/URLs is a one-line change in `.env`
+
+## 2026-06-11 — feat: resume PDF parser (Prompt 3)
+
+- Implemented `parse_resume(path: Path) -> str` in `utils/resume_parser.py` using pdfplumber
+- Pages are joined with double newlines; raises `FileNotFoundError` on a missing path
+- Prints a rich-formatted warning (via `rich.console.Console`) for any page that returns no text — likely image-based and a candidate for OCR
+- Raises `ValueError` when the whole document yields no text
+- Implemented `preview_resume(path: Path, chars: int = 500) -> str` that reuses `parse_resume` and returns a stripped, length-capped snippet for quick verification
