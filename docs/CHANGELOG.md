@@ -42,3 +42,8 @@ Branch: `feature/job-search-followup`
 - Wrapped all LLM chain calls with `ConnectionError` → "Cannot reach Ollama" and general `Exception` handlers.
 - Replaced bare `Exception` catches in file saves with `OSError` and `handle_error`.
 - **Improvement beyond spec:** No raw Python tracebacks shown to users during normal operation; all errors are friendly Rich-formatted messages.
+
+### [Prompt 17] Add type hints, docstrings, and parser error handling
+- Verified complete type hints across `utils/resume_parser.py`, `utils/tracker.py`, and all `chains/` files.
+- Added `OutputParserException` handling in `chains/analyzer.py` with clear `ValueError` message.
+- Confirmed all string formatting uses f-strings consistently; no unused imports remain.

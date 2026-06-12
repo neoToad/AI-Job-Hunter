@@ -83,6 +83,9 @@ def first_run_check(ctx: typer.Context) -> None:
     if not env_path.exists():
         missing.append(f".env file not found at {env_path}")
 
+    # Config-level warnings (non-blocking)
+    config.validate_config(console)
+
     if missing:
         console.print(
             Panel(
