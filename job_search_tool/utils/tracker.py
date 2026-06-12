@@ -119,7 +119,15 @@ def add_application(
         match_score: Numerical or string match score.
         notes: Free-text notes.
         cover_letter_path: Path to the generated cover letter.
+
+    Raises:
+        ValueError: If *company* or *role* is empty or whitespace-only.
     """
+    if not company or not company.strip():
+        raise ValueError("Company name must be a non-empty string.")
+    if not role or not role.strip():
+        raise ValueError("Role must be a non-empty string.")
+
     wb = _get_or_create_workbook(path)
     ws = wb.active
     today = date.today()
@@ -161,12 +169,19 @@ def show_tracker(path: Path) -> None:
     for header in _HEADERS:
         table.add_column(header)
 
+    row_count = 0
     for row in ws.iter_rows(values_only=True):
         # Render every cell as a string; empty cells become ""
-        table.add_row(*(str(cell or "") for cell in row))
+        rendered = [str(cell or "") for cell in row]
+        if any(rendered):
+            table.add_row(*rendered)
+            row_count += 1
 
     console = Console()
-    console.print(table)
+    if row_count == 0:
+        console.print("[yellow]No applications found.[/]")
+    else:
+        console.print(table)
 
 
 def get_followups_due(path: Path) -> list[dict[str, Any]]:
@@ -208,3 +223,65 @@ def get_followups_due(path: Path) -> list[dict[str, Any]]:
             due.append(row_dict)
 
     return due
+
+
+_VALID_STATUSES = {"Applied", "Interviewing", "Offer", "Rejected", "Withdrawn"}
+
+
+def update_status(path: Path, company: str, role: str, new_status: str) -> None:
+    """Update the Status column for the matching company + role row.
+
+    Args:
+        path: Path to the .xlsx tracker file.
+        company: Company name to match.
+        role: Role title to match.
+        new_status: One of ``"Applied"``, ``"Interviewing"``, ``"Offer"``,
+            ``"Rejected"``, ``"Withdrawn"``.
+
+    Raises:
+        ValueError: If *new_status* is not a valid status.
+        FileNotFoundError: If the tracker file does not exist.
+    """
+    if new_status not in _VALID_STATUSES:
+        raise ValueError(
+            f"Invalid status '{new_status}'. Must be one of: {', '.join(sorted(_VALID_STATUSES))}"
+        )
+
+    if not path.exists():
+        raise FileNotFoundError(f"Tracker not found at {path}")
+
+    wb = load_workbook(path)
+    ws = wb.active
+    if ws is None:
+        raise ValueError("Tracker workbook has no active sheet.")
+
+    target_company = company.strip().lower()
+    target_role = role.strip().lower()
+    status_col: int | None = None
+
+    # Find the Status column index from the header row
+    for idx, cell in enumerate(ws[1], start=1):
+        if str(cell.value or "").strip().lower() == "status":
+            status_col = idx
+            break
+
+    if status_col is None:
+        raise ValueError("Tracker is missing a 'Status' column.")
+
+    updated = False
+    for row in ws.iter_rows(min_row=2):
+        if len(row) < 2:
+            continue
+        row_company = str(row[0].value or "").strip().lower()
+        row_role = str(row[1].value or "").strip().lower()
+        if row_company == target_company and row_role == target_role:
+            row[status_col - 1].value = new_status
+            updated = True
+            break
+
+    if not updated:
+        raise ValueError(
+            f"No application found for {company} — {role}."
+        )
+
+    wb.save(path)

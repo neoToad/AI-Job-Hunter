@@ -26,6 +26,7 @@ from utils.tracker import (
     application_exists,
     get_followups_due,
     show_tracker,
+    update_status,
 )
 
 app = typer.Typer(help="Job search automation CLI.")
@@ -540,6 +541,25 @@ def tracker(
         console.print(
             "Use [cyan]tracker --show[/cyan] to display the full tracker table."
         )
+
+
+@app.command()
+def status(
+    company: str = typer.Option(..., "--company", help="Company name."),
+    role: str = typer.Option(..., "--role", help="Role title."),
+    new_status: str = typer.Option(..., "--status", help="New status: Applied, Interviewing, Offer, Rejected, Withdrawn."),
+) -> None:
+    """Update the status of an existing application in the tracker."""
+    try:
+        update_status(config.TRACKER_PATH, company, role, new_status)
+    except ValueError as exc:
+        handle_error(str(exc))
+    except FileNotFoundError as exc:
+        handle_error(str(exc), hint="Run `python main.py apply` to create the tracker.")
+
+    console.print(
+        f"[bold green]Updated[/] {company} — {role} → [cyan]{new_status}[/cyan]"
+    )
 
 
 if __name__ == "__main__":

@@ -47,3 +47,9 @@ Branch: `feature/job-search-followup`
 - Verified complete type hints across `utils/resume_parser.py`, `utils/tracker.py`, and all `chains/` files.
 - Added `OutputParserException` handling in `chains/analyzer.py` with clear `ValueError` message.
 - Confirmed all string formatting uses f-strings consistently; no unused imports remain.
+
+### [Prompt 18] Add config validation
+- Added `validate_config()` in `config.py` with Rich warnings for missing model, unreachable Ollama, and missing resume.
+- Used `socket.connect_ex` with short timeout to test localhost Ollama port without blocking.
+- Called `validate_config()` from `@app.callback()` in `main.py` so warnings appear once at startup.
+- **Improvement beyond spec:** Passed existing `console` instance to avoid creating a second Rich console.
