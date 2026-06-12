@@ -1,16 +1,19 @@
 # Current Task
 
-## Step: Prompt 5 — Job Analyzer Chain
+## Step: Prompt 6 — Resume Tailorer Chain
 
 ### What I'm actively working on
-- Implementing `chains/analyzer.py` with:
-  - `JobAnalysis` Pydantic model (company, role, must_have, nice_to_have, red_flags, match_score, matching_skills, missing_skills, recommendation, summary)
-  - `analyze_job(resume: str, job_description: str) -> JobAnalysis` using ChatPromptTemplate + JsonOutputParser
-  - Temperature 0.1 for consistent structured output
-  - Prompt instructs honesty: never invent skills the candidate doesn't have
+- Implementing `chains/tailorer.py` with:
+  - `tailor_resume(resume: str, job_description: str, analysis: JobAnalysis) -> str`
+  - ChatPromptTemplate taking original resume, job description, must-have requirements, and matching skills
+  - Instructs LLM to rewrite bullet points using keywords from the job posting
+  - Explicitly forbids inventing experience the candidate doesn't have
+  - Tells the model to preserve all resume sections and use strong action verbs
+  - Temperature 0.2
+  - Return plain string via StrOutputParser
 
 ### Next step after this
-- Prompt 6: Resume Tailorer Chain (`chains/tailorer.py`)
+- Prompt 7: Cover Letter Chain (`chains/cover_letter.py`)
 
 ### Blockers
 - None.

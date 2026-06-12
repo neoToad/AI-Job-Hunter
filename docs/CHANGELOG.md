@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-11 — feat: Job Analyzer Chain (Prompt 5)
+
+- Implemented `chains/analyzer.py` with `JobAnalysis` Pydantic model
+- Fields: company, role, must_have, nice_to_have, red_flags, match_score (0–100), matching_skills, missing_skills, recommendation (Literal["apply","skip","stretch"]), summary
+- `analyze_job(resume, job_description)` uses ChatPromptTemplate + JsonOutputParser with temperature 0.1
+- Prompt instructs the LLM to be honest and never invent skills the candidate doesn't have
+- Returns a validated `JobAnalysis` instance
+
 ## 2026-06-11 — feat: application tracker in openpyxl (Prompt 4)
 
 - Implemented `utils/tracker.py` backed by an `.xlsx` workbook via openpyxl
