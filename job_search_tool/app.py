@@ -236,13 +236,13 @@ if mode == "Full Application" and "analysis" in st.session_state:
         st.subheader("Cover Letter")
         st.text_area(
             "Editable cover letter",
-            value=st.session_state.get("cover_letter", ""),
             height=250,
+            key="cover_letter",
         )
 
         st.subheader("Tailored Resume")
         st.text_area(
             "Editable tailored resume",
-            value=st.session_state.get("tailored_resume", ""),
             height=250,
+            key="tailored_resume",
         )

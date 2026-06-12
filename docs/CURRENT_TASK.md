@@ -1,12 +1,11 @@
 # Current Task
 
-## Step 1: Wrap `wb.save()` in tracker for `PermissionError`
+## Step 2: Use `st.session_state` for analysis results
 
 **Status:** In progress
 
 **What I'm doing:**
-- In `job_search_tool/utils/tracker.py`, wrap all `wb.save(path)` calls (lines 149, 287, 339, 388) in try/except.
-- Catch `PermissionError` and re-raise as a user-friendly exception with the message:
-  "Tracker file may be open in another program. Close it and try again."
+- In `job_search_tool/app.py`, ensure `analysis`, `tailored_resume`, and `cover_letter` are stored in `st.session_state` and persist across Streamlit reruns.
+- Add `key` parameters to the editable `st.text_area` widgets for cover letter and tailored resume so user edits are written back to `st.session_state` and not lost when interacting with other widgets.
 
-**Next step:** Commit and push, then move to Step 2 (Use `st.session_state` for analysis results).
+**Next step:** Commit and push, then move to Step 3 (Add `st.session_state` gating for apply pipeline).

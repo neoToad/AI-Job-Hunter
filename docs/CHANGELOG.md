@@ -92,4 +92,10 @@ Branch: `main`
 - Replaced all four raw `wb.save(path)` calls in `add_application`, `update_status`, `delete_application`, and `edit_application` with calls to `_safe_save`.
 - **Improvement:** Centralized the save logic so future enhancements (e.g., backup-on-save, retry logic) only require changing one place.
 
+## [Step 2] Use `st.session_state` for analysis results
+
+- Added `key="cover_letter"` and `key="tailored_resume"` to the editable `st.text_area` widgets in `app.py` Full Application mode.
+- Removed the explicit `value=` parameter from these text areas; Streamlit now reads the initial value from `st.session_state` (set by the pipeline) and writes user edits back to the same key automatically.
+- **Improvement:** User edits to the generated cover letter or tailored resume are now preserved across Streamlit reruns instead of being reset when the user interacts with other widgets.
+
 
