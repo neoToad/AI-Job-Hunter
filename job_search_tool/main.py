@@ -231,6 +231,7 @@ def _display_analysis(result: JobAnalysis) -> None:
 @app.command()
 def apply(
     skip_tailor: bool = typer.Option(False, "--skip-tailor", help="Skip resume tailoring."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Run analysis only — no files saved, no tracker updated."),
 ) -> None:
     """Full pipeline: analyze, optionally tailor resume, generate cover letter, save, and log."""
     if not config.RESUME_PATH.exists():
@@ -266,6 +267,15 @@ def apply(
             raise typer.Exit(1)
 
     _display_analysis(analysis)
+
+    if dry_run:
+        console.print(
+            Panel(
+                "[bold yellow]Dry run complete[/] — no files saved and tracker not updated.",
+                border_style="yellow",
+            )
+        )
+        raise typer.Exit(0)
 
     try:
         cont = typer.confirm("Continue with this application?")
