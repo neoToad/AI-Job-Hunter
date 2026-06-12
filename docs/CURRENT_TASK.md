@@ -1,10 +1,14 @@
 # Current Task
 
-## Step 19 — Phase D: CI compatibility
+## Build Complete — All 19 steps implemented
 
-**Status:** In progress  
-**Branch:** `feature/job-search-output-formats`
+**Status:** Finished  
+**Branch:** `feature/job-search-output-formats` (pushed to remote)
 
-**What:** Updating `.github/workflows/test.yml` to install `wkhtmltopdf` on the Ubuntu runner so PDF rendering tests work in CI.
+**Summary of what was implemented:**
+- Phase A (Shared Renderer Foundation): Steps 1–3 — created `utils/renderers.py`, `templates/resume.html`, updated `requirements.txt`
+- Phase B (Tailored Resume → PDF): Steps 4–9 — added Pydantic models, updated prompt, refactored chain, wired PDF rendering, updated CLI labels and Streamlit UI
+- Phase C (Cover Letter → DOCX): Steps 10–13 — wired DOCX rendering, updated CLI labels and Streamlit UI, pruned tracker cover-letter column
+- Phase D (Testing & Fallbacks): Steps 14–19 — unit tests for renderers and tailorer, updated tracker tests, integration smoke tests, CI workflow update
 
-**Next:** Finalize — update CURRENT_TASK.md to reflect build is finished.
+**No uncommitted files remain.**

@@ -96,5 +96,10 @@ Branch: `feature/job-search-output-formats`
 - Added `test_apply_dry_run_writes_no_txt_files` asserting no `.txt` files are written during `--dry-run`.
 - Added `test_apply_creates_pdf_and_docx_not_txt` mocking LLM chains and asserting `render_resume_pdf` and `render_cover_letter_docx` are called.
 
+## Step 19 — chore(ci): install wkhtmltopdf in GitHub Actions workflow
+
+- Added `apt-get install wkhtmltopdf` step to `.github/workflows/test.yml`.
+- Ensures CI runners have the required binary for PDF rendering.
+
 <!-- New entries go below this line -->
 
