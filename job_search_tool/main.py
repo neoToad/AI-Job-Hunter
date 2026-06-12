@@ -5,6 +5,8 @@ Provides Typer commands: verify, analyze, apply, followup, tracker.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import requests
 import typer
 from rich.console import Console
@@ -43,6 +45,34 @@ def _read_multiline_input(prompt_text: str = "Paste job description (type END on
             break
         lines.append(line)
     return "\n".join(lines)
+
+
+@app.callback(invoke_without_command=True)
+def first_run_check(ctx: typer.Context) -> None:
+    """Print a first-run hint if the resume or .env file is missing."""
+    # Only run when no subcommand is given (typer prints help) or before a subcommand runs.
+    # Typer invokes callback before each command; ctx.invoked_subcommand tells us which command is running.
+    if ctx.invoked_subcommand is None:
+        return  # User ran `python main.py` with no args; Typer will print help.
+
+    missing: list[str] = []
+    if not config.RESUME_PATH.exists():
+        missing.append(f"Resume PDF not found at {config.RESUME_PATH}")
+    env_path = Path(__file__).resolve().parent / ".env"
+    if not env_path.exists():
+        missing.append(f".env file not found at {env_path}")
+
+    if missing:
+        console.print(
+            Panel(
+                "[bold]Looks like this might be your first time running this tool.[/bold]\n\n"
+                "[cyan]Step 1:[/] Copy .env.example to .env and fill in your settings\n"
+                "[cyan]Step 2:[/] Place your resume PDF at resume/resume.pdf\n"
+                "[cyan]Step 3:[/] Run [green]python main.py verify[/green] to confirm everything works",
+                title="Welcome 👋",
+                border_style="yellow",
+            )
+        )
 
 
 @app.command()

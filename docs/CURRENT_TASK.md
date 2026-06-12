@@ -1,10 +1,12 @@
 # Current Task
 
-## Prompt 11 — Fix: Output Directory & Init Files
+## Prompt 12 — Fix: First-Run Experience
 
 **What I'm actively working on:**
-1. Ensuring `chains/__init__.py` and `utils/__init__.py` both exist.
-2. Updating `config.py` to create all required directories on import: `output/`, `output/cover_letters/`, `output/tailored_resumes/`, `data/`, `resume/`.
-3. Wrapping output file save steps in `main.py` with try/except OSError and helpful messages.
+Adding a Typer callback (`@app.callback()`) in `main.py` that:
+1. Checks if `resume/resume.pdf` exists
+2. Checks if `.env` exists (or environment variables are set)
+3. If either is missing, prints a friendly Rich Panel explaining first-run steps
+4. Does NOT block execution — just prints the hint and continues
 
-**Next step:** Commit Prompt 11, then move to Prompt 12.
+**Next step:** Commit Prompt 12, then move to Prompt 13.
