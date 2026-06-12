@@ -39,7 +39,7 @@ def make_slug(company: str, role: str, today: date | None = None) -> str:
         s = s.lower()
         s = s.replace("/", "-").replace("\\", "-")
         s = re.sub(r"[^a-z0-9]+", "_", s)
-        return s.strip("_")
+        return s.strip("_")[:50]
 
     date_str = (today or date.today()).isoformat()
     return f"{_clean(company)}_{_clean(role)}_{date_str}.txt"

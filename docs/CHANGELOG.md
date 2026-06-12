@@ -53,3 +53,10 @@ Branch: `feature/job-search-followup`
 - Used `socket.connect_ex` with short timeout to test localhost Ollama port without blocking.
 - Called `validate_config()` from `@app.callback()` in `main.py` so warnings appear once at startup.
 - **Improvement beyond spec:** Passed existing `console` instance to avoid creating a second Rich console.
+
+### [Prompt 19] Improve tracker robustness and add status command
+- Validated non-empty company/role in `add_application()`; raise `ValueError` if empty.
+- Handled empty rows in `show_tracker()`; print "No applications found." when all rows are blank.
+- Gracefully skipped corrupt date formats in `get_followups_due()` instead of crashing.
+- Added `update_status()` in `utils/tracker.py` with validated status enum.
+- Exposed `status` as new CLI command with `--company`, `--role`, `--status` options.

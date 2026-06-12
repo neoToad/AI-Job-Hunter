@@ -99,6 +99,22 @@ Skip resume tailoring:
 python main.py apply --skip-tailor
 ```
 
+Dry-run (analyze only, no files saved):
+```bash
+python main.py apply --dry-run
+```
+
+---
+
+### `status`
+Update the status of an existing application in the tracker.
+
+```bash
+python main.py status --company "Acme Corp" --role "Software Engineer" --status "Interviewing"
+```
+
+Valid statuses: `Applied`, `Interviewing`, `Offer`, `Rejected`, `Withdrawn`.
+
 ---
 
 ### `followup`
