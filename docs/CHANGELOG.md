@@ -47,5 +47,10 @@ Branch: `feature/job-search-output-formats`
 - Replaced the "Tailored Resume" editable text area with a `st.download_button` for the generated `.pdf`.
 - Added fallback info message when the PDF file is not found.
 
+## Step 10 — feat(pipelines): wire DOCX cover letter rendering into apply pipeline
+
+- Imported `render_cover_letter_docx` and changed `cl_out` extension to `.docx`.
+- Replaced `write_text()` for cover letters with `render_cover_letter_docx()`.
+
 <!-- New entries go below this line -->
 

@@ -1,13 +1,10 @@
 # Current Task
 
-## Step 10 — Phase C: Wire DOCX rendering into pipeline
+## Step 11 — Phase C: Update CLI output labels for cover letter
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating `pipelines.py` to:
-- Import `render_cover_letter_docx` from `utils.renderers`
-- Change `cl_out` extension to `.docx`
-- Replace `write_text()` for the cover letter with `render_cover_letter_docx()`
+**What:** The `apply()` summary panel in `main.py` already displays the cover-letter path dynamically; since `cl_out` now ends in `.docx` (Step 10), the panel implicitly references `.docx` without further code changes. No hardcoded `.txt` references remain in `main.py`.
 
-**Next:** Update CLI output labels for cover letter in `main.py` (Step 11).
+**Next:** Update Streamlit cover letter UI in `app.py` (Step 12).
