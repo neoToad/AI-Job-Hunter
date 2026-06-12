@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-11 — feat: Follow-up Email Chain (Prompt 8)
+
+- Implemented `chains/followup.py` with `draft_followup(company, role, date_applied)`
+- Uses ChatPromptTemplate + StrOutputParser at temperature 0.4
+- Constrained to under 100 words
+- Explicitly forbids pushy or groveling language
+- References the specific role and politely asks about the hiring timeline
+
 ## 2026-06-11 — feat: Cover Letter Chain (Prompt 7)
 
 - Implemented `chains/cover_letter.py` with `generate_cover_letter(resume, job_description, analysis)`
