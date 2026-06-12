@@ -139,3 +139,31 @@ Phase 2 — implemented all Low/Medium improvements:
 - None
 
 ---
+
+### [Prompt 30] Secrets and .gitignore audit
+
+**What was built:**
+Implemented security fixes directly:
+- Updated `.gitignore`: added `.streamlit/secrets.toml` and `docs/*.pdf`
+- Scanned all Python files for hardcoded secrets, API keys, tokens, Bearer strings, absolute paths with usernames:
+  - No secrets found in source code
+  - `Bearer` usage in `main.py` and `chains/llm.py` correctly reads from `config.OLLAMA_API_KEY`
+  - No absolute user paths in Python files
+- Added `sanitize_filename()` in `utils/helpers.py`:
+  - Strips path separators and unsafe chars (`< > : \" | ? *` and control chars)
+  - Truncates to 50 characters, falls back to `"unknown"`
+  - Avoids Windows reserved names (CON, PRN, AUX, NUL, COM1–9, LPT1–9)
+  - Applied inside `make_slug()` so all file paths built from company/role are safe
+- URL fetch safety:
+  - Added 8000-character cap in `fetch_url_text()` before returning text to caller
+  - Verified `timeout=10` and `http/https` scheme validation are already present
+- Verified no error handler prints full resume text or job description text
+- Added `is_file()` validation for `--file` input in `main.py`
+
+**Refactors/improvements:**
+- None
+
+**Deviations:**
+- None
+
+---
