@@ -158,4 +158,11 @@ Branch: `main`
   - `show_tracker` — prints empty-tracker message without crashing
 - **Fix:** `utils/tracker.py:show_tracker` was iterating all rows including the header row, causing an empty tracker (headers only) to render a table instead of the "No applications found" message. Added `min_row=2` to `iter_rows` to skip the header.
 
+## [Step 11] Test `chains/analyzer.py`
+
+- Created `tests/test_analyzer.py` with six tests:
+  - Four tests for `validate_job_description` covering realistic input, short input, URL-only input, and missing-keyword input.
+  - Two tests for `analyze_job` using `FakeListChatModel`: one with valid JSON (asserts `JobAnalysis` fields), one with malformed JSON (asserts `ValueError`).
+- **Fix:** Updated `tests/conftest.py:mock_llm` to monkeypatch `get_llm` inside every chain module that imports it directly (`chains.analyzer`, `chains.tailorer`, `chains.cover_letter`, `chains.followup`). Python binds `from chains.llm import get_llm` at import time, so patching `chains.llm.get_llm` alone leaves stale references in the consumer modules.
+
 

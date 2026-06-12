@@ -45,9 +45,17 @@ def tmp_tracker(tmp_path):
 
 @pytest.fixture
 def mock_llm(monkeypatch):
-    """Replace ``chains.llm.get_llm`` with a ``FakeListChatModel`` that returns preset strings."""
+    """Replace ``chains.llm.get_llm`` with a ``FakeListChatModel`` that returns preset strings.
+
+    Patches both the module-level function and the direct imports inside each chain
+    module so the mock is respected regardless of how ``get_llm`` was imported.
+    """
     from langchain_community.chat_models import FakeListChatModel
 
     fake = FakeListChatModel(responses=["mock response"])
     monkeypatch.setattr("chains.llm.get_llm", lambda **kwargs: fake)
+    monkeypatch.setattr("chains.analyzer.get_llm", lambda **kwargs: fake)
+    monkeypatch.setattr("chains.tailorer.get_llm", lambda **kwargs: fake)
+    monkeypatch.setattr("chains.cover_letter.get_llm", lambda **kwargs: fake)
+    monkeypatch.setattr("chains.followup.get_llm", lambda **kwargs: fake)
     return fake
