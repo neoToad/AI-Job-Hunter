@@ -111,4 +111,9 @@ Branch: `main`
 - **Fix:** Added a second `.strip(" ._-")` after truncation, because slicing to `max_length` can reintroduce trailing dots or spaces if the original string contained them near the boundary.
 - Re-checked reserved names after the post-truncation strip to ensure the final filename is safe.
 
+## [Step 5] Validate `--file` path is actually a file
+
+- In `main.py:get_job_description`, the `--file` validation already checked `file.is_file()`, but it used `handle_error()` which exits with code 1.
+- **Change:** Replaced the `handle_error()` call with `raise typer.BadParameter(...)` so Typer presents the error as a clean parameter-validation message (exit code 2) consistent with other CLI tools.
+
 

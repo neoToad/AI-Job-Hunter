@@ -129,9 +129,8 @@ def get_job_description(file: Path | None, url: str | None) -> str:
     """
     if file is not None:
         if not file.is_file():
-            handle_error(
-                f"Not a file: {file}",
-                hint="Provide a valid path to a plain-text file.",
+            raise typer.BadParameter(
+                f"Not a file: {file}. Provide a valid path to a plain-text file."
             )
         try:
             return file.read_text(encoding="utf-8")

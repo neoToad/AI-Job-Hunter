@@ -1,11 +1,11 @@
 # Current Task
 
-## Step 4: Add Windows reserved name check to `make_slug`
+## Step 5: Validate `--file` path is actually a file
 
 **Status:** In progress
 
 **What I'm doing:**
-- In `job_search_tool/utils/helpers.py`, review `sanitize_filename` (which `make_slug` relies on).
-- `sanitize_filename` already checks Windows reserved names, but truncation can leave trailing dots/spaces. Adding a second strip after truncation ensures `make_slug` never produces filenames ending in `.` or ` `.
+- In `job_search_tool/main.py`, `get_job_description` already checks `file.is_file()`, but it uses `handle_error()` instead of the Typer-native `typer.BadParameter`.
+- Updating the check to raise `typer.BadParameter` so Typer prints a clean validation error before invoking the command.
 
-**Next step:** Commit and push, then move to Step 5 (Validate `--file` path is actually a file).
+**Next step:** Commit and push, then move to Step 6 (Add docstring to `first_run_check`).
