@@ -63,6 +63,9 @@ def sanitize_filename(name: str, max_length: int = 50) -> str:
     # Truncate
     cleaned = cleaned[:max_length]
 
+    # Truncation can leave trailing dots or spaces — strip again
+    cleaned = cleaned.strip(" ._-")
+
     # Avoid Windows reserved names (case-insensitive)
     if cleaned.upper() in _WINDOWS_RESERVED:
         cleaned = f"{cleaned}_file"

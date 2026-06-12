@@ -1,11 +1,11 @@
 # Current Task
 
-## Step 3: Add `st.session_state` gating for apply pipeline
+## Step 4: Add Windows reserved name check to `make_slug`
 
 **Status:** In progress
 
 **What I'm doing:**
-- In `job_search_tool/app.py`, fix `_clear_stale_state` to clear the correct session state keys for Full Application mode (`analysis`, `tailored_resume`, `cover_letter`, `apply_complete`).
-- Add mode-change gating so that switching between "Analyze Job" and "Full Application" modes also clears cached results, preventing stale data from one mode appearing in the other.
+- In `job_search_tool/utils/helpers.py`, review `sanitize_filename` (which `make_slug` relies on).
+- `sanitize_filename` already checks Windows reserved names, but truncation can leave trailing dots/spaces. Adding a second strip after truncation ensures `make_slug` never produces filenames ending in `.` or ` `.
 
-**Next step:** Commit and push, then move to Step 4 (Add Windows reserved name check to `make_slug`).
+**Next step:** Commit and push, then move to Step 5 (Validate `--file` path is actually a file).

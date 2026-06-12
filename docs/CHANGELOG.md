@@ -105,4 +105,10 @@ Branch: `main`
 - Extended `_clear_stale_state` calls to both Analyze Job and Full Application modes so stale results are consistently cleared when the user switches modes or edits the job description.
 - **Improvement:** Prevents stale analysis data from one mode appearing in the other mode after a mode switch.
 
+## [Step 4] Add Windows reserved name check to `make_slug`
+
+- `sanitize_filename` in `utils/helpers.py` already rejected Windows reserved names (CON, PRN, AUX, NUL, COM1–9, LPT1–9) and stripped trailing dots/spaces.
+- **Fix:** Added a second `.strip(" ._-")` after truncation, because slicing to `max_length` can reintroduce trailing dots or spaces if the original string contained them near the boundary.
+- Re-checked reserved names after the post-truncation strip to ensure the final filename is safe.
+
 
