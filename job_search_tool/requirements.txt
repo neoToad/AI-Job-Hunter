@@ -11,6 +11,12 @@ requests==2.34.2
 beautifulsoup4==4.15.0
 lxml==6.1.1
 streamlit==1.58.0
+Jinja2==3.1.6
+pdfkit==1.0.0
+python-docx==1.1.2
+# wkhtmltopdf binary must be installed separately (not via pip).
+# Windows: https://wkhtmltopdf.org/downloads.html
+# Ubuntu:   apt-get install wkhtmltopdf
 pytest==9.0.3
 pytest-mock==3.15.1
 pytest-cov==7.1.0

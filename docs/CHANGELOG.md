@@ -2,9 +2,21 @@
 
 ## [Unreleased]
 
-Branch: `main`
+Branch: `feature/job-search-output-formats`
 
 ---
+
+## Step 1 — feat(utils): add shared renderers module with PDF/DOCX renderers and graceful .txt fallback
+
+- Created `job_search_tool/utils/renderers.py` with `render_resume_pdf()` and `render_cover_letter_docx()`.
+- Both functions gracefully fall back to `.txt` if required libraries (`pdfkit`/`wkhtmltopdf` or `python-docx`) are missing.
+- Added `_resume_to_text()` helper to flatten a structured resume dict into plain text for fallback mode.
+
+## Step 2 — feat(templates): add professional single-column resume HTML template
+
+- Created `job_search_tool/templates/resume.html` with a clean, single-column layout.
+- Sections: contact header, summary, experience (with bullets), education, skills.
+- CSS includes font sizing, spacing, and `page-break-inside: avoid` for experience blocks.
 
 <!-- New entries go below this line -->
 
