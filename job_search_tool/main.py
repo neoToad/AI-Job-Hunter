@@ -410,115 +410,6 @@ def _run_analysis(resume_text: str, job_description: str) -> JobAnalysis:
     return analysis
 
 
-def _run_tailoring_and_cover_letter(
-    analysis: JobAnalysis,
-    resume_text: str,
-    job_description: str,
-    skip_tailor: bool,
-) -> tuple[str, str]:
-    """Tailor the resume and generate a cover letter.
-
-    Args:
-        analysis: The ``JobAnalysis`` from the analyzer chain.
-        resume_text: Full text of the original resume.
-        job_description: Full text of the job posting.
-        skip_tailor: If ``True``, skip resume tailoring.
-
-    Returns:
-        A tuple of ``(tailored_resume, cover_letter)``.
-    """
-    from chains.tailorer import tailor_resume
-    from chains.cover_letter import generate_cover_letter
-
-    if skip_tailor:
-        tailored_resume = resume_text
-        console.print("[yellow]Skipped resume tailoring.[/]")
-        cover_letter = _run_chain_with_spinner(
-            "Generating cover letter...",
-            lambda: generate_cover_letter(resume_text, job_description, analysis),
-            step_name="cover letter generation",
-        )
-    else:
-        def _tailor_and_cover():
-            async def _inner():
-                return await asyncio.gather(
-                    asyncio.to_thread(
-                        tailor_resume, resume_text, job_description, analysis
-                    ),
-                    asyncio.to_thread(
-                        generate_cover_letter, resume_text, job_description, analysis
-                    ),
-                )
-
-            return asyncio.run(_inner())
-
-        tailored_resume, cover_letter = _run_chain_with_spinner(
-            "Tailoring resume & generating cover letter...",
-            _tailor_and_cover,
-            step_name="tailoring and cover letter generation",
-        )
-
-    return tailored_resume, cover_letter
-
-
-def _save_outputs(
-    tailored_resume: str,
-    cover_letter: str,
-    analysis: JobAnalysis,
-) -> None:
-    """Write files to disk, prompt for source/notes, and update the tracker.
-
-    Args:
-        tailored_resume: The tailored resume text.
-        cover_letter: The generated cover letter text.
-        analysis: The ``JobAnalysis`` containing company, role, and match score.
-    """
-    slug = make_slug(analysis.company, analysis.role)
-    resume_out = config.TAILORED_RESUMES_DIR / f"resume_{slug}"
-    cl_out = config.COVER_LETTERS_DIR / f"cover_letter_{slug}"
-
-    try:
-        resume_out.write_text(tailored_resume, encoding="utf-8")
-        cl_out.write_text(cover_letter, encoding="utf-8")
-    except OSError as exc:
-        handle_error(
-            f"Error saving files: {exc}",
-            hint=f"Check that {config.OUTPUT_DIR} exists and is writable.",
-        )
-
-    source: str = typer.prompt(
-        "Source (e.g., LinkedIn, Indeed — press Enter to skip)", default=""
-    )
-    notes: str = typer.prompt("Optional notes (press Enter to skip)", default="")
-
-    try:
-        add_application(
-            path=config.TRACKER_PATH,
-            company=analysis.company,
-            role=analysis.role,
-            source=source,
-            match_score=analysis.match_score,
-            notes=notes,
-            cover_letter_path=cl_out,
-        )
-    except Exception as exc:
-        handle_error(
-            f"Error updating tracker: {exc}",
-            hint="Run `python main.py verify` to check your setup.",
-        )
-
-    console.print(
-        Panel(
-            f"[bold green]Application logged![/]\n\n"
-            f"Tailored resume: [cyan]{resume_out}[/cyan]\n"
-            f"Cover letter:    [cyan]{cl_out}[/cyan]\n"
-            f"Tracker:         [cyan]{config.TRACKER_PATH}[/cyan]",
-            title="Summary",
-            border_style="green",
-        )
-    )
-
-
 @app.command()
 def apply(
     skip_tailor: bool = typer.Option(False, "--skip-tailor", help="Skip resume tailoring."),
@@ -527,6 +418,8 @@ def apply(
     url: str | None = typer.Option(None, "--url", help="URL of a job posting to fetch and extract text from."),
 ) -> None:
     """Full pipeline: analyze, optionally tailor resume, generate cover letter, save, and log."""
+    from pipelines import run_apply_pipeline
+
     resume_text, job_description = _gather_inputs(file, url)
     analysis = _run_analysis(resume_text, job_description)
 
@@ -556,11 +449,33 @@ def apply(
             "already exists in the tracker."
         )
 
-    tailored_resume, cover_letter = _run_tailoring_and_cover_letter(
-        analysis, resume_text, job_description, skip_tailor
+    source: str = typer.prompt(
+        "Source (e.g., LinkedIn, Indeed — press Enter to skip)", default=""
+    )
+    notes: str = typer.prompt("Optional notes (press Enter to skip)", default="")
+
+    result = run_apply_pipeline(
+        resume_text,
+        job_description,
+        source=source,
+        skip_tailor=skip_tailor,
+        dry_run=False,
+        analysis=analysis,
+        notes=notes,
     )
 
-    _save_outputs(tailored_resume, cover_letter, analysis)
+    resume_out = result.saved_paths["resume"]
+    cl_out = result.saved_paths["cover_letter"]
+    console.print(
+        Panel(
+            f"[bold green]Application logged![/]\n\n"
+            f"Tailored resume: [cyan]{resume_out}[/cyan]\n"
+            f"Cover letter:    [cyan]{cl_out}[/cyan]\n"
+            f"Tracker:         [cyan]{config.TRACKER_PATH}[/cyan]",
+            title="Summary",
+            border_style="green",
+        )
+    )
 
 
 @app.command()

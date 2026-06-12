@@ -58,6 +58,17 @@ Branch: `main`
 - Explicitly added `read_only=False` to `load_workbook` calls in `_get_or_create_workbook`, `update_status`, `delete_application`, and `edit_application` to document intent.
 - No functional changes — `read_only=False` is the openpyxl default; the explicit flag serves as a safety signal for future maintainers.
 
+## [Prompt 37] Extract shared run_apply_pipeline
+
+- Created `pipelines.py` with a shared `run_apply_pipeline()` function and `PipelineStep` enum + `PipelineResult` dataclass.
+- The pipeline encapsulates: analysis (optional reuse), tailoring + cover-letter generation, file writes, and tracker update.
+- Supports an optional `on_step` callback so the Streamlit UI can update its progress bar (`ANALYZING` → `TAILORING` → `SAVING` → `DONE`).
+- Refactored `main.py:apply()` to call `run_apply_pipeline()` after gathering inputs, running analysis, and collecting source/notes from the user.
+- Removed `_run_tailoring_and_cover_letter()` and `_save_outputs()` from `main.py` since their logic now lives in the shared pipeline.
+- Refactored `app.py:Full Application` mode to call `run_apply_pipeline()` with a step callback that maps each `PipelineStep` to a `st.progress()` percentage.
+- Removed now-unused `asyncio`, `make_slug`, and `add_application` imports from `app.py`.
+
+
 
 
 

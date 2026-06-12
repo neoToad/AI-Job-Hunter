@@ -9,16 +9,14 @@ All business logic is imported from chains/ and utils/ — no duplication.
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 
 import streamlit as st
 
 import config
 from chains.analyzer import analyze_job
-from utils.helpers import make_slug
 from utils.resume_parser import get_resume_text
-from utils.tracker import add_application, application_exists
+from utils.tracker import application_exists
 
 
 st.set_page_config(page_title="Job Search Assistant", layout="wide")
@@ -161,6 +159,8 @@ if mode == "Full Application" and run_clicked:
         )
         st.stop()
 
+    from pipelines import PipelineStep, run_apply_pipeline
+
     progress_bar = st.progress(0, text="Analyzing job...")
 
     try:
@@ -191,64 +191,37 @@ if mode == "Full Application" and run_clicked:
         if not confirm_duplicate:
             st.stop()
 
-    # Tailor resume + cover letter concurrently
-    from chains.tailorer import tailor_resume
-    from chains.cover_letter import generate_cover_letter
+    def _on_step(step: PipelineStep) -> None:
+        if step == PipelineStep.ANALYZING:
+            progress_bar.progress(25, text="Analyzing job...")
+        elif step == PipelineStep.TAILORING:
+            progress_bar.progress(50, text="Tailoring resume & generating cover letter...")
+        elif step == PipelineStep.SAVING:
+            progress_bar.progress(75, text="Saving outputs...")
+        elif step == PipelineStep.DONE:
+            progress_bar.progress(100, text="Done!")
 
-    progress_bar.progress(50, text="Tailoring resume & generating cover letter...")
     try:
-
-        async def _tailor_and_cover():
-            return await asyncio.gather(
-                asyncio.to_thread(
-                    tailor_resume, resume_text, job_description, analysis
-                ),
-                asyncio.to_thread(
-                    generate_cover_letter, resume_text, job_description, analysis
-                ),
-            )
-
-        tailored_resume, cover_letter = asyncio.run(_tailor_and_cover())
+        result = run_apply_pipeline(
+            resume_text,
+            job_description,
+            source=job_source,
+            skip_tailor=False,
+            dry_run=False,
+            analysis=analysis,
+            on_step=_on_step,
+        )
     except ConnectionError:
         st.error("Cannot reach Ollama. Is it running? Try: ollama serve")
         st.stop()
     except Exception as exc:
-        st.error(f"Error during tailoring or cover letter generation: {exc}")
+        st.error(f"Error during pipeline: {exc}")
         st.stop()
 
-    st.session_state.tailored_resume = tailored_resume
-    st.session_state.cover_letter = cover_letter
-
-    # Save outputs
-    slug = make_slug(analysis.company, analysis.role)
-    resume_out = config.TAILORED_RESUMES_DIR / f"resume_{slug}"
-    cl_out = config.COVER_LETTERS_DIR / f"cover_letter_{slug}"
-
-    try:
-        resume_out.write_text(tailored_resume, encoding="utf-8")
-        cl_out.write_text(cover_letter, encoding="utf-8")
-    except OSError as exc:
-        st.error(f"Error saving files: {exc}")
-        st.stop()
-
-    # Update tracker
-    try:
-        add_application(
-            path=config.TRACKER_PATH,
-            company=analysis.company,
-            role=analysis.role,
-            source=job_source,
-            match_score=analysis.match_score,
-            notes="",
-            cover_letter_path=cl_out,
-        )
-    except Exception as exc:
-        st.error(f"Error updating tracker: {exc}")
-        st.stop()
-
-    progress_bar.progress(100, text="Done!")
-    st.success("Application logged successfully!")
+    st.session_state.tailored_resume = result.tailored_resume
+    st.session_state.cover_letter = result.cover_letter
     st.session_state.apply_complete = True
+    st.success("Application logged successfully!")
 
 if mode == "Full Application" and "analysis" in st.session_state:
     analysis = st.session_state.analysis
