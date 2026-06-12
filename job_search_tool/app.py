@@ -58,16 +58,21 @@ def _cached_resume_text() -> str:
 
 # --- Session-state helpers ----------------------------------------------------
 
-def _clear_stale_state(current_jd: str) -> None:
-    """Remove cached results if the job description has changed."""
+def _clear_stale_state(current_jd: str, current_mode: str) -> None:
+    """Remove cached results if the job description or mode has changed."""
     last_jd = st.session_state.get("last_job_description", "")
-    if last_jd != current_jd:
-        for key in ("analyze_result", "tailored_resume", "cover_letter", "apply_complete"):
+    last_mode = st.session_state.get("last_mode", "")
+    if last_jd != current_jd or last_mode != current_mode:
+        for key in ("analyze_result", "analysis", "tailored_resume", "cover_letter", "apply_complete"):
             st.session_state.pop(key, None)
         st.session_state.last_job_description = current_jd
+        st.session_state.last_mode = current_mode
 
 
 # --- Analyze Job mode --------------------------------------------------------
+
+if mode == "Analyze Job":
+    _clear_stale_state(job_description, mode)
 
 if mode == "Analyze Job" and run_clicked:
     if not job_description.strip():
@@ -133,7 +138,7 @@ if mode == "Analyze Job" and "analyze_result" in st.session_state:
 # --- Full Application mode ---------------------------------------------------
 
 if mode == "Full Application":
-    _clear_stale_state(job_description)
+    _clear_stale_state(job_description, mode)
 
 if mode == "Full Application" and run_clicked:
     if not job_description.strip():

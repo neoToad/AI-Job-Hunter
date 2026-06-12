@@ -98,4 +98,11 @@ Branch: `main`
 - Removed the explicit `value=` parameter from these text areas; Streamlit now reads the initial value from `st.session_state` (set by the pipeline) and writes user edits back to the same key automatically.
 - **Improvement:** User edits to the generated cover letter or tailored resume are now preserved across Streamlit reruns instead of being reset when the user interacts with other widgets.
 
+## [Step 3] Add `st.session_state` gating for apply pipeline
+
+- Updated `_clear_stale_state` in `app.py` to accept `current_mode` and clear cached results when either the job description or the selected mode changes.
+- Added `"analysis"` to the list of keys cleared on input change (previously only `"analyze_result"` was cleared, which left Full Application mode's `analysis` state stale).
+- Extended `_clear_stale_state` calls to both Analyze Job and Full Application modes so stale results are consistently cleared when the user switches modes or edits the job description.
+- **Improvement:** Prevents stale analysis data from one mode appearing in the other mode after a mode switch.
+
 
