@@ -186,4 +186,12 @@ Branch: `main`
   - `test_tracker_show_empty_tracker` — creates an empty tracker (headers only) and asserts exit code 0.
   - `test_tracker_delete_with_confirmation` — seeds a tracker row, invokes `tracker --delete` with `input="y\n"`, asserts exit code 0 and "Deleted" in output.
 
+## [Step 15] Add CI workflow
+
+- Created `.github/workflows/test.yml` as specified in the testing plan.
+- Triggers on push to `main`/`feature/*` and on pull requests to `main`.
+- Uses `ubuntu-latest`, Python 3.11, installs requirements from `job_search_tool/requirements.txt`, then runs `pytest tests/ -v -m "not ollama"`.
+- No tests in the suite require a real Ollama connection (all LLM calls are mocked with `FakeListChatModel`), so the `not ollama` exclusion is a safe guard for future tests.
+- **Full suite run locally:** 35 passed, 0 failed, 1 deprecation warning (langchain-community sunset).
+
 
