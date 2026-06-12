@@ -11,3 +11,9 @@ Branch: `feature/job-search-followup`
 - Updated `config.py` to create `data/` and `resume/` directories on import alongside existing output dirs.
 - Wrapped output file save steps in `main.py` with `OSError`-specific try/except and a Rich-formatted hint.
 - **Improvement beyond spec:** Used `OSError` instead of bare `Exception` for more precise error handling; added a hint about checking directory writability.
+
+### [Prompt 12] Add first-run experience
+- Added Typer `@app.callback()` in `main.py` that runs before every command.
+- Checks for `resume/resume.pdf` and `.env`; prints friendly Rich Panel with setup steps if either is missing.
+- Does not block execution so `verify` can still run and show detailed errors.
+- **Improvement beyond spec:** Added `invoke_without_command=True` so callback fires correctly; included welcome emoji in panel title.

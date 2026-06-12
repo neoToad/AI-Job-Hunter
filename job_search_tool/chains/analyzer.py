@@ -32,6 +32,46 @@ class JobAnalysis(BaseModel):
     summary: str = Field(description="Brief plain-English summary of the fit.")
 
 
+_SIGNALS = [
+    "responsibilities",
+    "requirements",
+    "qualifications",
+    "experience",
+    "skills",
+    "role",
+    "position",
+    "job",
+]
+
+
+def validate_job_description(jd: str) -> tuple[bool, str]:
+    """Quick sanity check for a job description string.
+
+    Returns:
+        (True, "") if the text looks like a real job posting.
+        (False, "reason") if it fails basic heuristics.
+    """
+    stripped = jd.strip()
+    if len(stripped) < 100:
+        return False, "Job description is too short (minimum 100 characters)."
+
+    if "\n" not in stripped and stripped.startswith(("http://", "https://")):
+        return False, "Input looks like a URL, not a full job description."
+
+    if "\n" not in stripped:
+        return False, "Job description is only a single line."
+
+    lowered = stripped.lower()
+    if not any(signal in lowered for signal in _SIGNALS):
+        return (
+            False,
+            "Job description is missing typical posting keywords "
+            "(e.g., responsibilities, requirements, experience).",
+        )
+
+    return True, ""
+
+
 _SYSTEM_TEMPLATE = (
     "You are an honest, experienced technical recruiter. "
     "Analyze the provided job description against the candidate's resume. "

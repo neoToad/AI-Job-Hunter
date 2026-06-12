@@ -1,12 +1,14 @@
 # Current Task
 
-## Prompt 12 — Fix: First-Run Experience
+## Prompt 13 — Fix: Job Description Validation
 
 **What I'm actively working on:**
-Adding a Typer callback (`@app.callback()`) in `main.py` that:
-1. Checks if `resume/resume.pdf` exists
-2. Checks if `.env` exists (or environment variables are set)
-3. If either is missing, prints a friendly Rich Panel explaining first-run steps
-4. Does NOT block execution — just prints the hint and continues
+1. Adding `validate_job_description(jd: str) -> tuple[bool, str]` in `chains/analyzer.py`.
+   - Check minimum length (100 chars)
+   - Check for job-posting signals: "responsibilities", "requirements", "qualifications", "experience", "skills", "role", "position", "job"
+   - Check it's not just a URL or single line
+   - Return (True, "") if valid, (False, "reason") if not
+2. Calling this validation in `main.py` `analyze` and `apply` commands after JD collection.
+3. If invalid, printing reason in yellow and asking user "Continue anyway? y/n"
 
-**Next step:** Commit Prompt 12, then move to Prompt 13.
+**Next step:** Commit Prompt 13, then move to Prompt 14.

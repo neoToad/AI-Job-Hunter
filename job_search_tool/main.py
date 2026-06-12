@@ -15,7 +15,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 import config
-from chains.analyzer import JobAnalysis, analyze_job
+from chains.analyzer import JobAnalysis, analyze_job, validate_job_description
 from chains.cover_letter import generate_cover_letter
 from chains.followup import draft_followup
 from chains.tailorer import tailor_resume
@@ -45,6 +45,27 @@ def _read_multiline_input(prompt_text: str = "Paste job description (type END on
             break
         lines.append(line)
     return "\n".join(lines)
+
+
+def _maybe_validate_jd(job_description: str) -> bool:
+    """Validate *job_description* and ask the user whether to continue.
+
+    Returns ``True`` if the input passes validation or the user opts to proceed
+    anyway. Returns ``False`` if the user declines to continue.
+    """
+    is_valid, reason = validate_job_description(job_description)
+    if is_valid:
+        return True
+
+    console.print(f"[bold yellow]Warning:[/] {reason}")
+    try:
+        proceed = typer.confirm(
+            "This doesn't look like a complete job description. Continue anyway?",
+            default=False,
+        )
+    except typer.Abort:
+        return False
+    return proceed
 
 
 @app.callback(invoke_without_command=True)
@@ -138,6 +159,10 @@ def analyze() -> None:
         console.print("[yellow]No job description provided — exiting.[/]")
         raise typer.Exit(0)
 
+    if not _maybe_validate_jd(job_description):
+        console.print("[yellow]Aborted.[/]")
+        raise typer.Exit(0)
+
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
@@ -222,6 +247,10 @@ def apply(
     job_description = _read_multiline_input()
     if not job_description.strip():
         console.print("[yellow]No job description provided — exiting.[/]")
+        raise typer.Exit(0)
+
+    if not _maybe_validate_jd(job_description):
+        console.print("[yellow]Aborted.[/]")
         raise typer.Exit(0)
 
     with Progress(
