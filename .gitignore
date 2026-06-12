@@ -61,8 +61,8 @@ Thumbs.db
 
 # --- Project-specific (job_search_tool) ---------------------------------------
 # User's private resume and tracker
-job_search_tool/resume/
-job_search_tool/data/
+job_search_tool/resume/*
+job_search_tool/data/*
 
 # Generated outputs are reproducible — keep the dirs (via .gitkeep) but not the contents
 job_search_tool/output/cover_letters/*
