@@ -1,12 +1,10 @@
 # Current Task
 
-## Step 18 — Phase D: Integration smoke tests
+## Step 19 — Phase D: CI compatibility
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Adding integration smoke tests to `tests/test_cli.py` that:
-- Run `apply --dry-run` and assert no `.txt` resume or cover-letter files are written in `output/`
-- Run a full mocked `apply` (without `--dry-run`) and assert `.pdf` and `.docx` files are created
+**What:** Updating `.github/workflows/test.yml` to install `wkhtmltopdf` on the Ubuntu runner so PDF rendering tests work in CI.
 
-**Next:** CI compatibility (Step 19).
+**Next:** Finalize — update CURRENT_TASK.md to reflect build is finished.
