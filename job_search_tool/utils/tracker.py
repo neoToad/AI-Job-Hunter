@@ -25,7 +25,6 @@ _HEADERS = [
     "Status",
     "Follow-up Date",
     "Notes",
-    "Cover Letter Path",
 ]
 
 # openpyxl pattern: use read_only=True for pure reads (faster, safer) and
@@ -124,7 +123,6 @@ def add_application(
     source: str,
     match_score: float | int | str,
     notes: str,
-    cover_letter_path: str | Path,
 ) -> None:
     """Append a new application row to the tracker.
 
@@ -140,7 +138,6 @@ def add_application(
         source: Where the posting was found (e.g. LinkedIn, Indeed).
         match_score: Numerical or string match score.
         notes: Free-text notes.
-        cover_letter_path: Path to the generated cover letter.
 
     Raises:
         ValueError: If *company* or *role* is empty or whitespace-only.
@@ -165,7 +162,6 @@ def add_application(
             "Applied",
             follow_up.isoformat(),
             notes,
-            str(cover_letter_path),
         ]
     )
     _safe_save(wb, path)
@@ -187,14 +183,22 @@ def show_tracker(path: Path) -> None:
         print("Tracker workbook has no active sheet.")
         return
 
+    # Use the worksheet's own header row so old trackers with orphaned columns
+    # (e.g., "Cover Letter Path") still render correctly.
+    sheet_headers = [str(cell.value or "") for cell in ws[1]]
     table = Table(title="Job Application Tracker", show_header=True, header_style="bold magenta")
-    for header in _HEADERS:
+    for header in sheet_headers:
         table.add_column(header)
 
     row_count = 0
     for row in ws.iter_rows(min_row=2, values_only=True):
         # Render every cell as a string; empty cells become ""
         rendered = [str(cell or "") for cell in row]
+        # Pad or truncate to match the number of header columns
+        if len(rendered) < len(sheet_headers):
+            rendered += [""] * (len(sheet_headers) - len(rendered))
+        elif len(rendered) > len(sheet_headers):
+            rendered = rendered[: len(sheet_headers)]
         if any(rendered):
             table.add_row(*rendered)
             row_count += 1
@@ -315,7 +319,6 @@ _EDITABLE_FIELDS = {
     "Status",
     "Follow-up Date",
     "Notes",
-    "Cover Letter Path",
 }
 
 

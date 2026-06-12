@@ -1,12 +1,15 @@
 # Current Task
 
-## Step 12 — Phase C: Update Streamlit cover letter UI
+## Step 13 — Phase C: Prune tracker cover-letter column
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating `app.py` to:
-- Keep the "Cover Letter" text area as a read-only preview
-- Add a download button below it for the `.docx` file
+**What:** Updating `utils/tracker.py` and all callers to:
+- Remove `"Cover Letter Path"` from `_HEADERS`
+- Drop `cover_letter_path` parameter from `add_application()`
+- Update pipeline in `pipelines.py` to stop passing the parameter
+- Update tests and fixtures that reference the column
+- Verify old trackers with orphaned column still render
 
-**Next:** Prune tracker cover-letter column in `utils/tracker.py` (Step 13).
+**Next:** Unit test `render_resume_pdf` (Step 14).

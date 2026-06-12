@@ -28,7 +28,7 @@ from utils.tracker import (
 def test_add_application_date_logic(tmp_path: Path) -> None:
     """Appends a row with today's date and follow-up date +14 days."""
     path = tmp_path / "tracker.xlsx"
-    add_application(path, "Acme", "Engineer", "LinkedIn", 80, "note", "/tmp/cl.txt")
+    add_application(path, "Acme", "Engineer", "LinkedIn", 80, "note")
 
     from openpyxl import load_workbook
 
@@ -36,7 +36,7 @@ def test_add_application_date_logic(tmp_path: Path) -> None:
     ws = wb.active
     rows = list(ws.iter_rows(values_only=True))
     assert len(rows) == 2  # header + 1 data row
-    _, _, date_applied, _, _, status, follow_up, notes, cl_path = rows[1]
+    _, _, date_applied, _, _, status, follow_up, notes = rows[1]
     assert date_applied == date.today().isoformat()
     assert follow_up == (date.today() + timedelta(days=14)).isoformat()
     assert status == "Applied"
@@ -47,7 +47,7 @@ def test_add_application_empty_validation(tmp_path: Path, company: str, role: st
     """Raise ValueError when company or role is empty or whitespace-only."""
     path = tmp_path / "tracker.xlsx"
     with pytest.raises(ValueError):
-        add_application(path, company, role, "LinkedIn", 80, "", "/tmp/cl.txt")
+        add_application(path, company, role, "LinkedIn", 80, "")
 
 
 # ---------------------------------------------------------------------------
@@ -137,7 +137,7 @@ def test_update_status_invalid_status(tmp_path: Path) -> None:
 def test_get_followups_due_filters_and_dates(tmp_tracker: Path) -> None:
     """Return only Applied rows whose follow-up date is today or earlier."""
     # Create an additional row with a past follow-up date
-    add_application(tmp_tracker, "OldCo", "Dev", "Indeed", 70, "", "/tmp/old.txt")
+    add_application(tmp_tracker, "OldCo", "Dev", "Indeed", 70, "")
     edit_application(tmp_tracker, "OldCo", "Dev", "Follow-up Date", "2000-01-01")
 
     due = get_followups_due(tmp_tracker)

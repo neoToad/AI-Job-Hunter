@@ -129,7 +129,6 @@ def run_apply_pipeline(
         source=source,
         match_score=analysis.match_score,
         notes=notes,
-        cover_letter_path=cl_out,
     )
 
     _emit(PipelineStep.DONE)

@@ -57,5 +57,11 @@ Branch: `feature/job-search-output-formats`
 - The `apply()` summary panel in `main.py` already uses dynamic paths.
 - Since `cl_out` now carries the `.docx` extension (Step 10), no further label changes were required.
 
+## Step 12 — feat(ui): add DOCX download button for cover letter in Streamlit
+
+- Kept the "Cover Letter" editable text area as a preview.
+- Added a `st.download_button` for the `.docx` file below the text area.
+- Used correct MIME type `application/vnd.openxmlformats-officedocument.wordprocessingml.document`.
+
 <!-- New entries go below this line -->
 

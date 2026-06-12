@@ -115,7 +115,7 @@ def test_tracker_delete_with_confirmation(tmp_path: Path, monkeypatch) -> None:
     tracker_path = tmp_path / "tracker.xlsx"
     from utils.tracker import add_application
 
-    add_application(tracker_path, "Acme", "Engineer", "LinkedIn", 80, "", "/tmp/cl.txt")
+    add_application(tracker_path, "Acme", "Engineer", "LinkedIn", 80, "")
     monkeypatch.setattr(config, "TRACKER_PATH", tracker_path)
 
     result = runner.invoke(app, ["tracker", "--delete", "--company", "Acme", "--role", "Engineer"], input="y\n")

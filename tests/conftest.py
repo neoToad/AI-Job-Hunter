@@ -39,7 +39,7 @@ def tmp_tracker(tmp_path):
     from utils.tracker import add_application
 
     path = tmp_path / "tracker.xlsx"
-    add_application(path, "Acme", "Engineer", "LinkedIn", 80, "", "/tmp/cl.txt")
+    add_application(path, "Acme", "Engineer", "LinkedIn", 80, "")
     return path
 
 
