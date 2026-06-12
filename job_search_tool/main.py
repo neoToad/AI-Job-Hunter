@@ -263,8 +263,11 @@ def apply(
     try:
         resume_out.write_text(tailored_resume, encoding="utf-8")
         cl_out.write_text(cover_letter, encoding="utf-8")
-    except Exception as exc:
+    except OSError as exc:
         console.print(f"[bold red]Error saving files:[/] {exc}")
+        console.print(
+            f"[dim]Hint: Check that {config.OUTPUT_DIR} exists and is writable.[/dim]"
+        )
         raise typer.Exit(1)
 
     # Optional source and notes

@@ -49,5 +49,5 @@ TAILORED_RESUMES_DIR: Path = OUTPUT_DIR / "tailored_resumes"
 # Creating them on import means downstream code (chains, utils) can always
 # assume the directories are present and writable.
 
-for _dir in (OUTPUT_DIR, COVER_LETTERS_DIR, TAILORED_RESUMES_DIR):
+for _dir in (OUTPUT_DIR, COVER_LETTERS_DIR, TAILORED_RESUMES_DIR, RESUME_PATH.parent, TRACKER_PATH.parent):
     _dir.mkdir(parents=True, exist_ok=True)
