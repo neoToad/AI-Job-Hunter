@@ -1,12 +1,12 @@
 # Current Task
 
-## Step 15 — Phase D: Unit test `render_cover_letter_docx`
+## Step 16 — Phase D: Unit test `tailor_resume` with JSON output
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Adding a test to `tests/test_renderers.py` that:
-- Asserts output file exists, has `.docx` extension
-- Contains expected paragraph text
+**What:** Adding an explicit test to `tests/test_tailorer.py` that:
+- Uses `FakeListChatModel` returning valid JSON
+- Asserts the returned dict contains the expected top-level keys: contact, summary, experience, education, skills
 
-**Next:** Unit test `tailor_resume` with JSON output (Step 16).
+**Next:** Update tracker tests (Step 17).

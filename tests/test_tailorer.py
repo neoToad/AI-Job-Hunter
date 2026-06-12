@@ -31,6 +31,15 @@ def test_tailor_resume_returns_dict(monkeypatch, sample_resume_text, sample_job_
     assert result["skills"] == ["Python", "Django"]
 
 
+def test_tailor_resume_has_expected_keys(monkeypatch, sample_resume_text, sample_job_description, sample_job_analysis) -> None:
+    """Assert the returned dict contains all top-level keys from the schema."""
+    fake = FakeListChatModel(responses=[VALID_JSON])
+    monkeypatch.setattr("chains.tailorer.get_llm", lambda **kwargs: fake)
+
+    result = tailor_resume(sample_resume_text, sample_job_description, sample_job_analysis)
+    assert set(result.keys()) == {"contact", "summary", "experience", "education", "skills"}
+
+
 def test_tailor_resume_malformed_json(monkeypatch, sample_resume_text, sample_job_description, sample_job_analysis) -> None:
     """Raise ValueError when the LLM response is not valid JSON."""
     fake = FakeListChatModel(responses=["not valid json"])

@@ -76,5 +76,10 @@ Branch: `feature/job-search-output-formats`
 - Mocked `pdfkit.from_string` and asserted `.pdf` creation.
 - Tested graceful fallback to `.txt` when `pdfkit`/`wkhtmltopdf` is unavailable.
 
+## Step 15 — test(renderers): add unit test for render_cover_letter_docx
+
+- Added `TestRenderCoverLetterDocx` asserting `.docx` creation and paragraph text.
+- Verified `Document` paragraphs match input split on double newlines.
+
 <!-- New entries go below this line -->
 
