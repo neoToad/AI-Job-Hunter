@@ -288,12 +288,6 @@ def analyze(
     url: str | None = typer.Option(None, "--url", help="URL of a job posting to fetch and extract text from."),
 ) -> None:
     """Parse resume, prompt for a job description, and display a structured analysis."""
-    if not config.RESUME_PATH.exists():
-        handle_error(
-            "Resume not found. Run `verify` first.",
-            hint=f"Place your PDF at {config.RESUME_PATH}",
-        )
-
     resume_text = _parse_resume_for_cli()
 
     job_description = get_job_description(file, url)
@@ -376,12 +370,6 @@ def _gather_inputs(file: Path | None, url: str | None) -> tuple[str, str]:
         typer.Exit: If the resume is missing, the job description is empty,
             or validation fails and the user aborts.
     """
-    if not config.RESUME_PATH.exists():
-        handle_error(
-            "Resume not found. Run `verify` first.",
-            hint=f"Place your PDF at {config.RESUME_PATH}",
-        )
-
     resume_text = _parse_resume_for_cli()
 
     job_description = get_job_description(file, url)

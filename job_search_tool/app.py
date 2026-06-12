@@ -47,9 +47,12 @@ run_clicked = st.button(button_label, type="primary")
 
 @st.cache_resource(show_spinner="Parsing resume...")
 def _cached_resume_text() -> str:
-    """Parse the resume once per Streamlit session."""
-    if not config.RESUME_PATH.exists():
-        raise FileNotFoundError(f"Resume not found at {config.RESUME_PATH}")
+    """Parse the resume once per Streamlit session.
+
+    Raises:
+        FileNotFoundError: If the resume PDF does not exist.
+        ValueError: If no text could be extracted from the PDF.
+    """
     return get_resume_text(config.RESUME_PATH)
 
 

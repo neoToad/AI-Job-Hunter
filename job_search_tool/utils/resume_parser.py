@@ -14,9 +14,8 @@ import json
 from pathlib import Path
 
 import pdfplumber
-from rich.console import Console
 
-_console = Console()
+from utils.console import console
 
 
 def parse_resume(path: Path) -> str:
@@ -43,7 +42,7 @@ def parse_resume(path: Path) -> str:
             pages_text.append(text)
 
     for page_num in empty_pages:
-        _console.print(
+        console.print(
             f"[bold yellow]Warning:[/] page {page_num} of {path.name} "
             f"returned no text — it may be image-based and require OCR."
         )

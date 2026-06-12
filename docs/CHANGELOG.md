@@ -76,6 +76,17 @@ Branch: `main`
 - Refactored `app.py:analyze mode` to iterate over `result.to_display_dict()` with a `_SECTION_TITLES` mapping, replacing 5 separate `if result.x:` blocks.
 - Both CLI and Streamlit now render from the same structured data source, with each UI layer handling its own presentation (Rich tables vs Streamlit expanders).
 
+## [Final] Shared console singleton + shared resume parsing helper
+
+- Created `utils/console.py` with a module-level singleton `console = Console()`.
+- Updated `utils/tracker.py` to import `console` from `utils.console` instead of creating a local `Console()`.
+- Updated `utils/resume_parser.py` to import `console` from `utils.console` instead of creating `_console = Console()`.
+- Updated `config.py:validate_config()` to fall back to the shared `console` instead of creating a fresh `Console()` inline.
+- **Shared resume parsing:** Removed redundant `config.RESUME_PATH.exists()` pre-checks from `main.py:analyze()`, `main.py:_gather_inputs()`, and `app.py:_cached_resume_text()`.
+  - `get_resume_text()` (in `utils/resume_parser.py`) already raises uniform `FileNotFoundError` / `ValueError` when the file is missing or unparseable.
+  - Both CLI and Streamlit callers now rely on the same underlying exceptions, handling them in their UI-appropriate way (`handle_error()` vs `st.error()`).
+
+
 
 
 

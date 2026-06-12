@@ -15,6 +15,8 @@ from urllib.parse import urlparse
 from dotenv import load_dotenv
 from rich.console import Console
 
+from utils.console import console
+
 # Load .env from the project root (job_search_tool/).
 # Safe to call even if the file doesn't exist — values fall back to defaults.
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -58,15 +60,15 @@ for _dir in (OUTPUT_DIR, COVER_LETTERS_DIR, TAILORED_RESUMES_DIR, RESUME_PATH.pa
 
 # --- Config validation -------------------------------------------------------
 
-def validate_config(console: Console | None = None) -> None:
+def validate_config(_console: Console | None = None) -> None:
     """Check for common misconfiguration issues and print warnings.
 
     Warnings are non-blocking. Call once at startup.
     """
-    _console = console or Console()
+    _out = _console or console
 
     if not os.getenv("OLLAMA_MODEL"):
-        _console.print(
+        _out.print(
             "[bold yellow]Warning:[/] No model set, defaulting to llama3.1"
         )
 
@@ -76,11 +78,11 @@ def validate_config(console: Console | None = None) -> None:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.settimeout(0.5)
             if sock.connect_ex((str(parsed.hostname), port)) != 0:
-                _console.print(
+                _out.print(
                     "[bold yellow]Warning:[/] Ollama may not be running locally"
                 )
 
     if not RESUME_PATH.exists():
-        _console.print(
+        _out.print(
             f"[bold yellow]Warning:[/] Resume not found at {RESUME_PATH}"
         )

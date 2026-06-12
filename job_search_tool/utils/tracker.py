@@ -12,8 +12,9 @@ from typing import Any
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
-from rich.console import Console
 from rich.table import Table
+
+from utils.console import console
 
 _HEADERS = [
     "Company",
@@ -180,7 +181,6 @@ def show_tracker(path: Path) -> None:
             table.add_row(*rendered)
             row_count += 1
 
-    console = Console()
     if row_count == 0:
         console.print("[yellow]No applications found.[/]")
     else:
