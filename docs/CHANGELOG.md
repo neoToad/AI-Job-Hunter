@@ -44,6 +44,14 @@ Branch: `main`
 - Removed redundant inline imports from `analyze()`, `_gather_inputs`, and `_run_analysis`.
 - All user prompts, tracker updates, and duplicate checks are preserved exactly.
 
+## [Prompt 35] Extract tracker delete/edit helpers
+
+- Extracted `_tracker_delete(company, role)` and `_tracker_edit(company, role, field, value)` from the `tracker()` Typer command.
+- Each helper contains its own validation, confirmation prompt, and tracker call — keeping the command entry point clean.
+- `tracker()` now delegates directly: `if delete: _tracker_delete(...); if edit: _tracker_edit(...)`.
+- No functional changes.
+
+
 
 
 
