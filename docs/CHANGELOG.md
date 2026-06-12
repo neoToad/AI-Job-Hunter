@@ -23,3 +23,9 @@ Branch: `feature/job-search-followup`
 - Wired validation into `main.py` `analyze` and `apply` commands after JD collection.
 - Prints yellow warning and prompts user to continue anyway if validation fails.
 - **Improvement beyond spec:** Extracted reusable `_maybe_validate_jd()` helper so both commands share the same UX; default answer is `False` for safety.
+
+### [Prompt 14] Add --dry-run flag to apply command
+- Added `--dry-run` boolean option to `apply` command (default False).
+- When enabled, runs JD validation + analyzer, displays full results, then exits cleanly.
+- Skips tailorer, cover letter generator, file saves, and tracker update.
+- **Improvement beyond spec:** Printed dry-run completion inside a styled Rich Panel for consistency.

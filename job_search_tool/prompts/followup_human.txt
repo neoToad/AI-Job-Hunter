@@ -1,0 +1,5 @@
+Company: {company}
+Role: {role}
+Date Applied: {date_applied}
+
+Draft the follow-up email now.

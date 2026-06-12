@@ -6,6 +6,7 @@ Compares a job description against a resume and returns a structured
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Literal
 
 from langchain_core.output_parsers import JsonOutputParser
@@ -13,6 +14,11 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 
 from chains.llm import get_llm
+
+
+def _load_prompt(name: str) -> str:
+    """Load a prompt template from the ``prompts/`` directory."""
+    return (Path(__file__).parent.parent / "prompts" / name).read_text()
 
 
 class JobAnalysis(BaseModel):
@@ -72,26 +78,6 @@ def validate_job_description(jd: str) -> tuple[bool, str]:
     return True, ""
 
 
-_SYSTEM_TEMPLATE = (
-    "You are an honest, experienced technical recruiter. "
-    "Analyze the provided job description against the candidate's resume. "
-    "Respond ONLY with valid JSON that exactly matches the requested schema. "
-    "Be objective: never invent skills or experience the candidate does not have. "
-    "If a requirement is not clearly evidenced in the resume, treat it as missing."
-)
-
-_USER_TEMPLATE = """
-RESUME:
-{resume}
-
-JOB DESCRIPTION:
-{job_description}
-
-Return your analysis as JSON matching this schema:
-{format_instructions}
-"""
-
-
 def analyze_job(resume: str, job_description: str) -> JobAnalysis:
     """Analyze a job description against a resume.
 
@@ -106,8 +92,8 @@ def analyze_job(resume: str, job_description: str) -> JobAnalysis:
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", _SYSTEM_TEMPLATE),
-            ("human", _USER_TEMPLATE),
+            ("system", _load_prompt("analyzer_system.txt")),
+            ("human", _load_prompt("analyzer_human.txt")),
         ]
     ).partial(format_instructions=parser.get_format_instructions())
 

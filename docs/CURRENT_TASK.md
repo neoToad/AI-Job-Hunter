@@ -1,16 +1,24 @@
 # Current Task
 
-## Prompt 14 — Feature: --dry-run Flag
+## Prompt 15 — Refactor: Prompt Templates to Separate Files
 
 **What I'm actively working on:**
-Adding a `--dry-run` boolean flag to the `apply` command in `main.py` (default False).
+Refactoring all LLM prompt templates out of chain files into plain `.txt` files in a new `prompts/` directory.
 
-When `--dry-run` is True:
-- Run job description validation
-- Run the analyzer and display full results (match score, skills, red flags)
-- Print "Dry run complete — no files saved and tracker not updated."
-- Exit without running tailorer, cover letter generator, or tracker update
+Files to create:
+- prompts/analyzer_system.txt
+- prompts/analyzer_human.txt
+- prompts/tailorer_system.txt
+- prompts/tailorer_human.txt
+- prompts/cover_letter_system.txt
+- prompts/cover_letter_human.txt
+- prompts/followup_system.txt
+- prompts/followup_human.txt
 
-Example: `python main.py apply --dry-run`
+In each chain file, load prompts using:
+```python
+def _load_prompt(name: str) -> str:
+    return (Path(__file__).parent.parent / "prompts" / name).read_text()
+```
 
-**Next step:** Commit Prompt 14, then move to Prompt 15.
+**Next step:** Commit Prompt 15, then move to Prompt 16.

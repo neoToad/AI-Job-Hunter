@@ -7,6 +7,8 @@ inventing experience.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -14,29 +16,9 @@ from chains.analyzer import JobAnalysis
 from chains.llm import get_llm
 
 
-_SYSTEM_TEMPLATE = (
-    "You are an expert resume writer who tailors resumes for specific job postings. "
-    "Rewrite the candidate's resume bullet points using keywords and phrasing from the job description. "
-    "Preserve all existing resume sections (summary, experience, education, skills, etc.). "
-    "Use strong action verbs and quantifiable outcomes where possible. "
-    "Under no circumstances should you invent experience, skills, or credentials the candidate does not have."
-)
-
-_USER_TEMPLATE = """
-ORIGINAL RESUME:
-{resume}
-
-JOB DESCRIPTION:
-{job_description}
-
-MUST-HAVE REQUIREMENTS:
-{must_have}
-
-MATCHING SKILLS FROM THE CANDIDATE:
-{matching_skills}
-
-Rewrite the resume above so it speaks directly to this job posting while remaining 100% truthful.
-"""
+def _load_prompt(name: str) -> str:
+    """Load a prompt template from the ``prompts/`` directory."""
+    return (Path(__file__).parent.parent / "prompts" / name).read_text()
 
 
 def tailor_resume(resume: str, job_description: str, analysis: JobAnalysis) -> str:
@@ -53,8 +35,8 @@ def tailor_resume(resume: str, job_description: str, analysis: JobAnalysis) -> s
     """
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", _SYSTEM_TEMPLATE),
-            ("human", _USER_TEMPLATE),
+            ("system", _load_prompt("tailorer_system.txt")),
+            ("human", _load_prompt("tailorer_human.txt")),
         ]
     )
 

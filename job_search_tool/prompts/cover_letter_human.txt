@@ -1,0 +1,16 @@
+RESUME:
+{resume}
+
+JOB DESCRIPTION:
+{job_description}
+
+COMPANY: {company}
+ROLE: {role}
+
+MUST-HAVE REQUIREMENTS:
+{must_have}
+
+MATCHING SKILLS FROM THE CANDIDATE:
+{matching_skills}
+
+Write the cover letter now. Keep it under 400 words and 3–4 paragraphs.

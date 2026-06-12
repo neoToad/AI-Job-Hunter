@@ -5,26 +5,17 @@ Generates a short, polite follow-up email for a job application.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 from chains.llm import get_llm
 
 
-_SYSTEM_TEMPLATE = (
-    "You are a polite, concise email assistant. "
-    "Draft a brief follow-up email under 100 words. "
-    "Do not be pushy, apologetic, or grovel. "
-    "Reference the specific role and ask politely about the hiring timeline."
-)
-
-_USER_TEMPLATE = """
-Company: {company}
-Role: {role}
-Date Applied: {date_applied}
-
-Draft the follow-up email now.
-"""
+def _load_prompt(name: str) -> str:
+    """Load a prompt template from the ``prompts/`` directory."""
+    return (Path(__file__).parent.parent / "prompts" / name).read_text()
 
 
 def draft_followup(company: str, role: str, date_applied: str) -> str:
@@ -40,8 +31,8 @@ def draft_followup(company: str, role: str, date_applied: str) -> str:
     """
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", _SYSTEM_TEMPLATE),
-            ("human", _USER_TEMPLATE),
+            ("system", _load_prompt("followup_system.txt")),
+            ("human", _load_prompt("followup_human.txt")),
         ]
     )
 

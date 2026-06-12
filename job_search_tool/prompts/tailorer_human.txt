@@ -1,0 +1,13 @@
+ORIGINAL RESUME:
+{resume}
+
+JOB DESCRIPTION:
+{job_description}
+
+MUST-HAVE REQUIREMENTS:
+{must_have}
+
+MATCHING SKILLS FROM THE CANDIDATE:
+{matching_skills}
+
+Rewrite the resume above so it speaks directly to this job posting while remaining 100% truthful.
