@@ -35,3 +35,10 @@ Branch: `feature/job-search-followup`
 - Extracted all hardcoded prompts from `analyzer`, `tailorer`, `cover_letter`, and `followup` chains.
 - Added `_load_prompt()` helper in each chain file to read templates from disk.
 - **Improvement beyond spec:** Prompts can now be edited without touching Python code, making A/B testing and iteration easier.
+
+### [Prompt 16] Centralize error handling
+- Added `handle_error()` in `utils/helpers.py` with red ✗ prefix and optional dim hint.
+- Wrapped resume parsing in `main.py` with `FileNotFoundError` and `ValueError` handlers.
+- Wrapped all LLM chain calls with `ConnectionError` → "Cannot reach Ollama" and general `Exception` handlers.
+- Replaced bare `Exception` catches in file saves with `OSError` and `handle_error`.
+- **Improvement beyond spec:** No raw Python tracebacks shown to users during normal operation; all errors are friendly Rich-formatted messages.

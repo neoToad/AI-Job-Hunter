@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
+from langchain_core.exceptions import OutputParserException
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
@@ -100,6 +101,12 @@ def analyze_job(resume: str, job_description: str) -> JobAnalysis:
     llm = get_llm(temperature=0.1)
     chain = prompt | llm | parser
 
-    raw = chain.invoke({"resume": resume, "job_description": job_description})
+    try:
+        raw = chain.invoke({"resume": resume, "job_description": job_description})
+    except OutputParserException as exc:
+        raise ValueError(
+            "AI returned unexpected format. Try running again."
+        ) from exc
+
     # The parser returns a dict; validate it through the Pydantic model.
     return JobAnalysis.model_validate(raw)
