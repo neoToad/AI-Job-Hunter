@@ -1,9 +1,9 @@
 # Current Task
 
-## Prompt 25 — Refactor Audit
+## Prompt 28 — Documentation
 
 **What I'm actively working on:**
-Scanning every file in the job_search_tool project and producing `docs/refactor_plan.md` with findings on duplicated logic, long functions, inconsistent patterns, dead code, chain structure, and Streamlit/CLI overlap.
+Phase 1: Scanning the project and writing `docs/documentation_plan.md` with gaps in README, user guide outline, prompt customization guide outline, and troubleshooting guide outline.
 
 **Next step:**
-Write the refactor plan markdown, then commit. Move to Prompt 26 (Best Practices Audit) next.
+Phase 2: Implement the documentation changes (update README.md, create user_guide.md, prompt_guide.md, troubleshooting.md). Then commit and push.

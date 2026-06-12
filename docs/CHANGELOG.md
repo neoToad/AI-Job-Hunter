@@ -84,3 +84,19 @@ Created `app.py` providing a web UI for the two most copy-paste-heavy commands:
 - None
 
 ---
+
+### [Prompts 25–27] Audit Plans (Refactor, Best Practices, Testing)
+
+**What was built:**
+Three markdown audit plans with no code changes:
+- `docs/refactor_plan.md` — duplicated `_load_prompt`, progress spinner blocks, resume parse blocks; long functions (`apply`, `tracker`); inconsistent `load_workbook` modes; Streamlit/CLI overlap; prioritized by impact vs effort
+- `docs/best_practices_plan.md` — type hints (minor `Any` tightening), missing docstring on `first_run_check`, unprotected `wb.save()` in tracker, path traversal risk in `--file`, missing `st.session_state` in app.py, LangChain temperatures appropriate, LCEL used everywhere
+- `docs/testing_plan.md` — test cases per file, mock strategy (FakeListChatModel, tmp_path), conftest fixtures, CI workflow, coverage targets, prioritized by risk
+
+**Refactors/improvements:**
+- None (plan-only prompts)
+
+**Deviations:**
+- None
+
+---
