@@ -70,5 +70,11 @@ Branch: `feature/job-search-output-formats`
 - Updated all callers in `pipelines.py`, `conftest.py`, `test_tracker.py`, and `test_cli.py`.
 - `show_tracker` now reads headers from the worksheet itself, gracefully handling old trackers with orphaned columns.
 
+## Step 14 — test(renderers): add unit tests for render_resume_pdf
+
+- Created `tests/test_renderers.py` with tests for `render_resume_pdf`.
+- Mocked `pdfkit.from_string` and asserted `.pdf` creation.
+- Tested graceful fallback to `.txt` when `pdfkit`/`wkhtmltopdf` is unavailable.
+
 <!-- New entries go below this line -->
 

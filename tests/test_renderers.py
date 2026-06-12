@@ -59,3 +59,24 @@ class TestRenderResumePdf:
         assert "Jane Doe" in content
         assert "EXPERIENCE" in content
 
+
+class TestRenderCoverLetterDocx:
+    def test_render_cover_letter_docx_creates_docx(self, tmp_path: Path) -> None:
+        """Assert a .docx file is created with expected paragraph text."""
+        out_path = tmp_path / "cover_letter"
+        text = "Dear Hiring Manager,\n\nI am excited to apply.\n\nSincerely,\nJane"
+
+        render_cover_letter_docx(text, out_path)
+
+        docx_path = out_path.with_suffix(".docx")
+        assert docx_path.exists()
+
+        from docx import Document
+
+        doc = Document(docx_path)
+        paragraphs = [p.text for p in doc.paragraphs if p.text.strip()]
+        assert "Dear Hiring Manager," in paragraphs[0]
+        assert "I am excited to apply." in paragraphs[1]
+        assert "Sincerely," in paragraphs[2]
+        assert "Jane" in paragraphs[2]
+
