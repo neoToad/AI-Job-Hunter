@@ -1,13 +1,14 @@
 # Current Task
 
-## Build Complete — All 15 steps implemented
+## Step 1 — Phase A: Create `utils/renderers.py`
 
-**Status:** All items from `docs/implementation_plans/best_practices_plan.md` and `docs/implementation_plans/testing_plan.md` are complete.
+**Status:** In progress  
+**Branch:** `feature/job-search-output-formats`
 
-**Branch:** `feature/job-search-best-practices` (pushed to remote)
+**What:** Creating the shared renderer module with two functions:
+- `render_resume_pdf(structured_resume: dict, path: Path) -> None`
+- `render_cover_letter_docx(text: str, path: Path) -> None`
 
-**Summary of what was implemented:**
-- Phase A (Best Practices): 7 fixes in `utils/tracker.py`, `app.py`, `utils/helpers.py`, `main.py`, and `chains/`.
-- Phase B (Test Suite): 8 test files with 35 tests, plus CI workflow.
+Each function includes graceful fallback to `.txt` if the required binary/library is missing.
 
-**No uncommitted files remain.**
+**Next:** Create `templates/resume.html` (Step 2).
