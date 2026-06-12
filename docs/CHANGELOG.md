@@ -177,4 +177,13 @@ Branch: `main`
   - `test_validate_config_no_warnings_when_valid` — mocks resume existence, model env var, and socket as open; asserts `console.print` is never called.
   - `test_validate_config_warns_when_resume_missing` — mocks resume as missing; asserts a single warning containing "Resume not found".
 
+## [Step 14] Test CLI (`main.py`)
+
+- Created `tests/test_cli.py` with five Typer `CliRunner` integration tests:
+  - `test_verify_exits_1_when_resume_missing` — asserts exit code 1 and "Resume not found" in output.
+  - `test_verify_exits_0_when_valid` — mocks resume parsing and Ollama tags endpoint; asserts exit code 0 and "Resume OK" / "Ollama OK".
+  - `test_analyze_with_file_exits_0` — writes a long valid JD to a temp file, mocks `get_resume_text` and `analyze_job`; asserts exit code 0 and "Job Analysis" panel rendered.
+  - `test_tracker_show_empty_tracker` — creates an empty tracker (headers only) and asserts exit code 0.
+  - `test_tracker_delete_with_confirmation` — seeds a tracker row, invokes `tracker --delete` with `input="y\n"`, asserts exit code 0 and "Deleted" in output.
+
 
