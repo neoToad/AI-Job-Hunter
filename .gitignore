@@ -70,6 +70,12 @@ job_search_tool/output/tailored_resumes/*
 !job_search_tool/output/cover_letters/.gitkeep
 !job_search_tool/output/tailored_resumes/.gitkeep
 
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Docs build artifacts
+docs/*.pdf
+
 # Ollama / model caches (in case the tool ever pulls models)
 .ollama/
 ollama_models/

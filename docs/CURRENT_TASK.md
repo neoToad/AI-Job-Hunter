@@ -1,9 +1,9 @@
 # Current Task
 
-## Prompt 29 — Performance Audit
+## Prompt 30 — Secrets & .gitignore Audit
 
 **What I'm actively working on:**
-Phase 1: Scanning the codebase and writing `docs/performance_plan.md` with findings on sequential LLM calls, redundant work, LLM call optimization, Streamlit performance, and startup time.
+Implementing security fixes directly: update .gitignore, scan for hardcoded values, add `sanitize_filename()`, verify URL fetch safety, scrub resume content from errors.
 
 **Next step:**
-Phase 2: Implement Low/Medium improvements (resume text cache, URL cache, parallelization if identified, Streamlit caching). Then commit and push.
+Run the fixes, verify with grep, commit and push. This is the final step.

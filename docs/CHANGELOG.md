@@ -119,3 +119,23 @@ Phase 2 — implemented all documentation:
 - None
 
 ---
+
+### [Prompt 29] Performance audit plan and Low/Medium improvements
+
+**What was built:**
+Phase 1 — produced `docs/performance_plan.md` identifying parallelizable LLM calls, redundant resume parsing, URL re-fetching, missing `st.session_state`, and lazy-import opportunity.
+
+Phase 2 — implemented all Low/Medium improvements:
+- `utils/resume_parser.py`: added `get_resume_text()` with disk cache (`resume/resume_cache.txt`) keyed by PDF mtime; `preview_resume` now uses it so `verify` benefits too
+- `utils/helpers.py`: added `fetch_url_text()` with JSON cache in `data/url_cache.json`, 24-hour expiry; deduplicates BeautifulSoup logic that was previously only in `main.py`
+- `main.py`: replaced inline URL fetch with `fetch_url_text`, replaced `parse_resume` with `get_resume_text`, added `asyncio.to_thread()` parallelization for `tailor_resume` + `generate_cover_letter` in `apply()`, lazy-imported chain modules inside commands to speed up cold starts for non-LLM commands
+- `app.py`: replaced `parse_resume` with `get_resume_text`, added `asyncio.to_thread()` parallelization for tailor + cover letter, added `st.session_state` with stale-state clearing so analysis results and generated outputs persist across Streamlit reruns
+
+**Refactors/improvements:**
+- `get_resume_text` gracefully ignores cache write failures (best-effort caching)
+- `fetch_url_text` gracefully ignores cache read/write failures
+
+**Deviations:**
+- None
+
+---

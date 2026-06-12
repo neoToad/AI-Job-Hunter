@@ -28,24 +28,55 @@ def handle_error(message: str, hint: str = "") -> None:
     raise typer.Exit(1)
 
 
-def make_slug(company: str, role: str, today: date | None = None) -> str:
-    """Return a safe filename slug: {company}_{role}_{date}.txt.
+_WINDOWS_RESERVED = {
+    "CON", "PRN", "AUX", "NUL",
+    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+}
 
-    Cleaning rules:
-    - lowercased
-    - slashes (``/``, ``\\``) become dashes
-    - all other non-alphanumeric runs become underscores
-    - leading/trailing underscores are stripped
+
+def sanitize_filename(name: str, max_length: int = 50) -> str:
+    """Return a filesystem-safe version of *name*.
+
+    Rules:
+    - Strip path separators (``/``, ``\\``, ``..``)
+    - Remove characters unsafe for filenames: ``< > : \" | ? *`` and control chars
+    - Collapse multiple unsafe runs to a single underscore
+    - Strip leading/trailing dots, spaces, and underscores
+    - Truncate to *max_length*
+    - Fall back to ``"unknown"`` if the result is empty
+    - Avoid Windows reserved names (CON, PRN, AUX, NUL, COM1–9, LPT1–9)
     """
+    # Strip path traversal patterns
+    cleaned = name.replace("..", "")
+    cleaned = cleaned.replace("/", "-").replace("\\", "-")
 
-    def _clean(s: str) -> str:
-        s = s.lower()
-        s = s.replace("/", "-").replace("\\", "-")
-        s = re.sub(r"[^a-z0-9]+", "_", s)
-        return s.strip("_")[:50]
+    # Remove unsafe characters
+    cleaned = re.sub(r"[<>:\"|?*\x00-\x1f]", "", cleaned)
 
+    # Collapse remaining non-alphanumeric (except dash and dot) to underscore
+    cleaned = re.sub(r"[^a-zA-Z0-9._-]+", "_", cleaned)
+
+    # Strip leading/trailing unsafe chars
+    cleaned = cleaned.strip(" ._-")
+
+    # Truncate
+    cleaned = cleaned[:max_length]
+
+    # Avoid Windows reserved names (case-insensitive)
+    if cleaned.upper() in _WINDOWS_RESERVED:
+        cleaned = f"{cleaned}_file"
+
+    if not cleaned:
+        cleaned = "unknown"
+
+    return cleaned
+
+
+def make_slug(company: str, role: str, today: date | None = None) -> str:
+    """Return a safe filename slug: {company}_{role}_{date}.txt."""
     date_str = (today or date.today()).isoformat()
-    return f"{_clean(company)}_{_clean(role)}_{date_str}.txt"
+    return f"{sanitize_filename(company)}_{sanitize_filename(role)}_{date_str}.txt"
 
 
 _URL_CACHE_PATH: Path = Path(__file__).resolve().parent.parent / "data" / "url_cache.json"
@@ -91,6 +122,11 @@ def fetch_url_text(url: str, timeout: int = 10) -> str:
     text = soup.get_text(separator="\n", strip=True)
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     cleaned = "\n".join(lines)
+
+    # Cap length before passing to the LLM to avoid massive token usage
+    _MAX_URL_TEXT = 8000
+    if len(cleaned) > _MAX_URL_TEXT:
+        cleaned = cleaned[:_MAX_URL_TEXT]
 
     # Write cache (best-effort)
     try:

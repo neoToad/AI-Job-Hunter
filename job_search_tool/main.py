@@ -60,6 +60,11 @@ def get_job_description(file: Path | None, url: str | None) -> str:
             or the fetched page contains fewer than 200 characters.
     """
     if file is not None:
+        if not file.is_file():
+            handle_error(
+                f"Not a file: {file}",
+                hint="Provide a valid path to a plain-text file.",
+            )
         try:
             return file.read_text(encoding="utf-8")
         except OSError as exc:
