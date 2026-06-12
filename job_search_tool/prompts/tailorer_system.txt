@@ -9,5 +9,21 @@ Rules:
 - Be specific and quantify where the original resume does
 
 Output format:
-Return ONLY valid JSON conforming to the schema described in the format instructions below.
-Do NOT return Markdown, plain text, or explanations. Only JSON.
+Return ONLY valid JSON. Do NOT return Markdown, plain text, or explanations.
+Only JSON.
+
+The JSON MUST contain exactly these top-level keys, in this order:
+1. contact
+2. summary
+3. experience
+4. education
+5. skills
+
+Key details — use EXACTLY these names, no synonyms:
+- Under "contact", include: "name", "email", "phone", "location", "linkedin". If a value is unknown, use an empty string.
+- Under "experience", each item must have: "title", "company", "dates", "bullets". The list of achievements MUST be under the key "bullets" — NOT "bulletPoints", NOT "responsibilities", NOT "achievements".
+- Under "education", each item must have: "degree", "school", "dates".
+- "skills" is a flat list of strings.
+
+Do NOT add extra top-level keys like certifications, languages, or projects.
+Do NOT rename any keys.
