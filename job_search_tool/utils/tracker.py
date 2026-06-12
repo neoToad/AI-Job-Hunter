@@ -192,7 +192,7 @@ def show_tracker(path: Path) -> None:
         table.add_column(header)
 
     row_count = 0
-    for row in ws.iter_rows(values_only=True):
+    for row in ws.iter_rows(min_row=2, values_only=True):
         # Render every cell as a string; empty cells become ""
         rendered = [str(cell or "") for cell in row]
         if any(rendered):

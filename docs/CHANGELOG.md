@@ -146,4 +146,16 @@ Branch: `main`
   4. `test_parse_resume_image_page_warning` — mocks a mixed PDF (empty page + text page), asserts warning via `console.print` mock, and verifies extraction continues.
   5. `test_preview_resume_length_cap` — mocks a 1000-char page and asserts `preview_resume(..., chars=50)` returns exactly 50 characters.
 
+## [Step 10] Test `utils/tracker.py`
+
+- Created `tests/test_tracker.py` with 14 unit tests covering all public tracker functions:
+  - `add_application` — date logic (+14 days follow-up), empty/whitespace validation
+  - `application_exists` — case-insensitive match, missing file returns False
+  - `delete_application` — removes correct row, returns False when not found
+  - `edit_application` — updates editable field, rejects non-editable field
+  - `update_status` — changes status, raises `ValueError` for invalid status
+  - `get_followups_due` — filters to Applied rows with follow-up date ≤ today
+  - `show_tracker` — prints empty-tracker message without crashing
+- **Fix:** `utils/tracker.py:show_tracker` was iterating all rows including the header row, causing an empty tracker (headers only) to render a table instead of the "No applications found" message. Added `min_row=2` to `iter_rows` to skip the header.
+
 
