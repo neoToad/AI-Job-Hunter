@@ -1,9 +1,9 @@
 # Current Task
 
-## Prompt 22 — Feature: File & URL Input for CLI
+## Prompt 23 — Feature: Tracker Delete & Edit
 
 **What I'm actively working on:**
-Replacing the "paste until END" input in `main.py` with a proper `--file` / `--url` / stdin helper. Adding `beautifulsoup4` and `lxml` to `requirements.txt`.
+Adding `delete_application()` and `edit_application()` in `utils/tracker.py`, then exposing them as `tracker --delete` and `tracker --edit` subcommands in `main.py`.
 
 **Next step:**
-Implement `get_job_description(file, url) -> str`, update `analyze` and `apply` commands to accept `--file` and `--url` options, improve the default stdin prompt. Then commit and push.
+Implement the tracker functions and CLI subcommands, test compilation, commit and push.

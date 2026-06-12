@@ -285,3 +285,104 @@ def update_status(path: Path, company: str, role: str, new_status: str) -> None:
         )
 
     wb.save(path)
+
+
+_EDITABLE_FIELDS = {
+    "Source",
+    "Match Score",
+    "Status",
+    "Follow-up Date",
+    "Notes",
+    "Cover Letter Path",
+}
+
+
+def delete_application(path: Path, company: str, role: str) -> bool:
+    """Delete the row matching *company* + *role* (case-insensitive).
+
+    Args:
+        path: Path to the .xlsx tracker file.
+        company: Company name to match.
+        role: Role title to match.
+
+    Returns:
+        ``True`` if a row was found and deleted, ``False`` otherwise.
+    """
+    if not path.exists():
+        return False
+
+    wb = load_workbook(path)
+    ws = wb.active
+    if ws is None:
+        return False
+
+    target_company = company.strip().lower()
+    target_role = role.strip().lower()
+
+    deleted = False
+    for row in ws.iter_rows(min_row=2):
+        if len(row) < 2:
+            continue
+        row_company = str(row[0].value or "").strip().lower()
+        row_role = str(row[1].value or "").strip().lower()
+        if row_company == target_company and row_role == target_role:
+            ws.delete_rows(row[0].row)
+            deleted = True
+            break
+
+    if deleted:
+        wb.save(path)
+    return deleted
+
+
+def edit_application(path: Path, company: str, role: str, field: str, value: str) -> bool:
+    """Update a single column for the row matching *company* + *role*.
+
+    Args:
+        path: Path to the .xlsx tracker file.
+        company: Company name to match.
+        role: Role title to match.
+        field: Column header to update. Must be one of the editable fields.
+        value: New value for the cell.
+
+    Returns:
+        ``True`` if the row and field were found and updated, ``False`` otherwise.
+    """
+    if not path.exists():
+        return False
+
+    if field not in _EDITABLE_FIELDS:
+        return False
+
+    wb = load_workbook(path)
+    ws = wb.active
+    if ws is None:
+        return False
+
+    target_company = company.strip().lower()
+    target_role = role.strip().lower()
+
+    # Find the column index for the requested field
+    field_col: int | None = None
+    for idx, cell in enumerate(ws[1], start=1):
+        if str(cell.value or "").strip() == field:
+            field_col = idx
+            break
+
+    if field_col is None:
+        return False
+
+    updated = False
+    for row in ws.iter_rows(min_row=2):
+        if len(row) < 2:
+            continue
+        row_company = str(row[0].value or "").strip().lower()
+        row_role = str(row[1].value or "").strip().lower()
+        if row_company == target_company and row_role == target_role:
+            row[field_col - 1].value = value
+            updated = True
+            break
+
+    if updated:
+        wb.save(path)
+    return updated

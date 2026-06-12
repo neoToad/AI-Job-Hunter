@@ -26,6 +26,8 @@ from utils.resume_parser import parse_resume, preview_resume
 from utils.tracker import (
     add_application,
     application_exists,
+    delete_application,
+    edit_application,
     get_followups_due,
     show_tracker,
     update_status,
@@ -600,14 +602,84 @@ def followup(
 @app.command()
 def tracker(
     show: bool = typer.Option(False, "--show", help="Display the full tracker table."),
+    delete: bool = typer.Option(False, "--delete", help="Delete an application entry."),
+    edit: bool = typer.Option(False, "--edit", help="Edit a field in an existing application entry."),
+    company: str = typer.Option("", "--company", help="Company name (required for --delete or --edit)."),
+    role: str = typer.Option("", "--role", help="Role title (required for --delete or --edit)."),
+    field: str = typer.Option("", "--field", help="Field to edit (required with --edit)."),
+    value: str = typer.Option("", "--value", help="New value for the field (required with --edit)."),
 ) -> None:
-    """Show the application tracker."""
+    """Show, delete, or edit entries in the application tracker."""
     if show:
         show_tracker(config.TRACKER_PATH)
-    else:
+        return
+
+    if delete:
+        if not company or not role:
+            handle_error(
+                "--company and --role are required with --delete.",
+                hint="Example: python main.py tracker --delete --company 'Acme' --role 'Engineer'",
+            )
+        if not application_exists(config.TRACKER_PATH, company, role):
+            console.print(
+                f"[bold yellow]No application found for {company} — {role}.[/]"
+            )
+            raise typer.Exit(1)
+
+        try:
+            confirm = typer.confirm("Are you sure you want to delete this entry?")
+        except typer.Abort:
+            console.print("[yellow]Aborted.[/]")
+            raise typer.Exit(0)
+
+        if not confirm:
+            console.print("[yellow]Aborted.[/]")
+            raise typer.Exit(0)
+
+        try:
+            delete_application(config.TRACKER_PATH, company, role)
+        except Exception as exc:
+            handle_error(f"Error deleting entry: {exc}")
+
         console.print(
-            "Use [cyan]tracker --show[/cyan] to display the full tracker table."
+            f"[bold green]Deleted[/] application for {company} — {role}."
         )
+        return
+
+    if edit:
+        if not company or not role:
+            handle_error(
+                "--company and --role are required with --edit.",
+                hint="Example: python main.py tracker --edit --company 'Acme' --role 'Engineer' --field 'Notes' --value 'Had phone screen'",
+            )
+        if not field or not value:
+            handle_error(
+                "--field and --value are required with --edit.",
+                hint="Example: python main.py tracker --edit --company 'Acme' --role 'Engineer' --field 'Notes' --value 'Had phone screen'",
+            )
+
+        try:
+            updated = edit_application(config.TRACKER_PATH, company, role, field, value)
+        except Exception as exc:
+            handle_error(f"Error editing entry: {exc}")
+
+        if not updated:
+            console.print(
+                f"[bold yellow]No application found for {company} — {role}, "
+                f"or field '{field}' does not exist.[/]"
+            )
+            raise typer.Exit(1)
+
+        console.print(
+            f"[bold green]Updated[/] {company} — {role}: {field} → [cyan]{value}[/cyan]"
+        )
+        return
+
+    console.print(
+        "Use [cyan]tracker --show[/cyan] to display the full tracker table.\n"
+        "Use [cyan]tracker --delete --company '<name>' --role '<role>'[/cyan] to delete an entry.\n"
+        "Use [cyan]tracker --edit --company '<name>' --role '<role>' --field '<field>' --value '<value>'[/cyan] to edit an entry."
+    )
 
 
 @app.command()

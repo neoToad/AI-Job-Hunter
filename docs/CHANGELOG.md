@@ -26,3 +26,22 @@ Replaced all 8 `prompts/*.txt` files with the exact content from the spec:
 - None
 
 ---
+
+### [Prompt 22] Add file and URL input for CLI analyze and apply commands
+
+**What was built:**
+Replaced the old "paste until END" input with a proper `--file` / `--url` / stdin helper in `main.py`:
+- `get_job_description(file, url) -> str` handles all three input modes
+- `--file` reads plain text from a file path
+- `--url` fetches the page with requests, parses with BeautifulSoup (lxml), strips script/style/nav/header/footer, deduplicates blank lines, and warns if extracted text is < 200 characters
+- Default stdin mode now prints a cleaner prompt mentioning Ctrl+D / Ctrl+Z instead of "type END"
+- Added `beautifulsoup4` and `lxml` to `requirements.txt`
+
+**Refactors/improvements:**
+- URL fetch has a 10-second timeout and validates the scheme (http:// or https://)
+- Uses `handle_error()` for consistent error messages on file/URL failures
+
+**Deviations:**
+- None
+
+---
