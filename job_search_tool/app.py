@@ -245,6 +245,17 @@ if mode == "Full Application" and "analysis" in st.session_state:
             height=250,
             key="cover_letter",
         )
+        cl_path = st.session_state.saved_paths.get("cover_letter")
+        if cl_path and Path(cl_path).exists():
+            with open(cl_path, "rb") as f:
+                st.download_button(
+                    label="Download DOCX Cover Letter",
+                    data=f.read(),
+                    file_name=Path(cl_path).name,
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+        else:
+            st.info("Cover letter DOCX not found.")
 
         st.subheader("Tailored Resume")
         resume_path = st.session_state.saved_paths.get("resume")

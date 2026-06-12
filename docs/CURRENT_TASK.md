@@ -1,10 +1,12 @@
 # Current Task
 
-## Step 11 — Phase C: Update CLI output labels for cover letter
+## Step 12 — Phase C: Update Streamlit cover letter UI
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** The `apply()` summary panel in `main.py` already displays the cover-letter path dynamically; since `cl_out` now ends in `.docx` (Step 10), the panel implicitly references `.docx` without further code changes. No hardcoded `.txt` references remain in `main.py`.
+**What:** Updating `app.py` to:
+- Keep the "Cover Letter" text area as a read-only preview
+- Add a download button below it for the `.docx` file
 
-**Next:** Update Streamlit cover letter UI in `app.py` (Step 12).
+**Next:** Prune tracker cover-letter column in `utils/tracker.py` (Step 13).

@@ -52,5 +52,10 @@ Branch: `feature/job-search-output-formats`
 - Imported `render_cover_letter_docx` and changed `cl_out` extension to `.docx`.
 - Replaced `write_text()` for cover letters with `render_cover_letter_docx()`.
 
+## Step 11 — docs(main): confirm CLI summary panel implicitly references .docx
+
+- The `apply()` summary panel in `main.py` already uses dynamic paths.
+- Since `cl_out` now carries the `.docx` extension (Step 10), no further label changes were required.
+
 <!-- New entries go below this line -->
 
