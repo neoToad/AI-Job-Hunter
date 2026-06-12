@@ -171,4 +171,10 @@ Branch: `main`
 - Created `tests/test_cover_letter.py` — happy-path test for `generate_cover_letter` using `mock_llm`; asserts string return.
 - Created `tests/test_followup.py` — happy-path test for `draft_followup` using `mock_llm`; asserts string return.
 
+## [Step 13] Test `config.py`
+
+- Created `tests/test_config.py` with two tests for `validate_config`:
+  - `test_validate_config_no_warnings_when_valid` — mocks resume existence, model env var, and socket as open; asserts `console.print` is never called.
+  - `test_validate_config_warns_when_resume_missing` — mocks resume as missing; asserts a single warning containing "Resume not found".
+
 

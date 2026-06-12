@@ -1,11 +1,13 @@
 # Current Task
 
-## Step 12: Test remaining chains
+## Step 13: Test `config.py`
 
 **Status:** In progress
 
 **What I'm doing:**
-- Created `tests/test_tailorer.py`, `tests/test_cover_letter.py`, and `tests/test_followup.py`.
-- Each has a happy-path test using the `mock_llm` fixture to verify the function returns the mocked LLM string when prompt variables are populated.
+- Created `tests/test_config.py` with tests for `validate_config`:
+  - No warnings printed when config is valid (resume exists, model set, Ollama port open)
+  - Warning printed when resume is missing
+- Mocked `os.getenv`, socket checks, and `RESUME_PATH.exists` appropriately.
 
-**Next step:** Commit and push, then move to Step 13 (Test `config.py`).
+**Next step:** Commit and push, then move to Step 14 (Test CLI `main.py`).
