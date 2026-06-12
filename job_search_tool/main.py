@@ -551,7 +551,7 @@ def followup(
 
     if save:
         slug = make_slug(company, role)
-        path = config.COVER_LETTERS_DIR / f"followup_{slug}"
+        path = config.COVER_LETTERS_DIR / f"followup_{slug}.txt"
         try:
             path.write_text(email, encoding="utf-8")
             console.print(f"[green]Saved to[/] [cyan]{path}[/cyan]")

@@ -77,9 +77,13 @@ def sanitize_filename(name: str, max_length: int = 50) -> str:
 
 
 def make_slug(company: str, role: str, today: date | None = None) -> str:
-    """Return a safe filename slug: {company}_{role}_{date}.txt."""
+    """Return a safe filename slug: {company}_{role}_{date}.
+
+    The returned string does **not** include an extension so callers can
+    append their own (``.pdf``, ``.docx``, ``.txt``, etc.).
+    """
     date_str = (today or date.today()).isoformat()
-    return f"{sanitize_filename(company)}_{sanitize_filename(role)}_{date_str}.txt"
+    return f"{sanitize_filename(company)}_{sanitize_filename(role)}_{date_str}"
 
 
 _URL_CACHE_PATH: Path = Path(__file__).resolve().parent.parent / "data" / "url_cache.json"

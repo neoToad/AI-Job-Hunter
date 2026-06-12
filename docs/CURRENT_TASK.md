@@ -1,14 +1,13 @@
 # Current Task
 
-## Step 7 — Phase B: Wire PDF rendering into pipeline
+## Step 8 — Phase B: Update CLI output labels
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating `pipelines.py` to:
-- Import `render_resume_pdf` from `utils.renderers`
-- Change `resume_out` extension to `.pdf`
-- Replace `write_text()` for the resume with `render_resume_pdf()` when tailoring is active
-- Fall back to `.txt` when `skip_tailor=True` (original resume text is a string, not structured dict)
+**What:** Updating `main.py` and `utils/helpers.py` so the CLI output paths reflect the new formats:
+- Fix `make_slug` to stop hardcoding `.txt` (callers now append their own extensions)
+- Update follow-up save path in `main.py` to explicitly append `.txt`
+- The `apply()` summary panel already shows the correct extension via the path object
 
-**Next:** Update CLI output labels in `main.py` (Step 8).
+**Next:** Update Streamlit resume UI in `app.py` (Step 9).
