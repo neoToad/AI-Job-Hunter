@@ -32,6 +32,24 @@ _HEADERS = [
 # read_only=False (the default) for any mutation so the workbook can be saved.
 
 
+def _safe_save(wb: Workbook, path: Path) -> None:
+    """Save *wb* to *path*, translating `PermissionError` into a friendly message.
+
+    Args:
+        wb: The workbook to save.
+        path: Destination file path.
+
+    Raises:
+        PermissionError: With a user-friendly message if the file is locked.
+    """
+    try:
+        wb.save(path)
+    except PermissionError as exc:
+        raise PermissionError(
+            "Tracker file may be open in another program. Close it and try again."
+        ) from exc
+
+
 def _get_or_create_workbook(path: Path) -> Workbook:
     """Load an existing workbook or create a new one with bold headers.
 
@@ -150,7 +168,7 @@ def add_application(
             str(cover_letter_path),
         ]
     )
-    wb.save(path)
+    _safe_save(wb, path)
 
 
 def show_tracker(path: Path) -> None:
@@ -288,7 +306,7 @@ def update_status(path: Path, company: str, role: str, new_status: str) -> None:
             f"No application found for {company} — {role}."
         )
 
-    wb.save(path)
+    _safe_save(wb, path)
 
 
 _EDITABLE_FIELDS = {
@@ -336,7 +354,7 @@ def delete_application(path: Path, company: str, role: str) -> bool:
             break
 
     if deleted:
-        wb.save(path)
+        _safe_save(wb, path)
     return deleted
 
 
@@ -390,5 +408,5 @@ def edit_application(path: Path, company: str, role: str, field: str, value: str
             break
 
     if updated:
-        wb.save(path)
+        _safe_save(wb, path)
     return updated

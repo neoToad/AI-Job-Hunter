@@ -86,11 +86,10 @@ Branch: `main`
   - `get_resume_text()` (in `utils/resume_parser.py`) already raises uniform `FileNotFoundError` / `ValueError` when the file is missing or unparseable.
   - Both CLI and Streamlit callers now rely on the same underlying exceptions, handling them in their UI-appropriate way (`handle_error()` vs `st.error()`).
 
+## [Step 1] Wrap `wb.save()` in tracker for PermissionError
 
-
-
-
-
-
+- Added `_safe_save(wb, path)` helper in `utils/tracker.py` that catches `PermissionError` from `wb.save()` and re-raises it with a user-friendly message: "Tracker file may be open in another program. Close it and try again."
+- Replaced all four raw `wb.save(path)` calls in `add_application`, `update_status`, `delete_application`, and `edit_application` with calls to `_safe_save`.
+- **Improvement:** Centralized the save logic so future enhancements (e.g., backup-on-save, retry logic) only require changing one place.
 
 
