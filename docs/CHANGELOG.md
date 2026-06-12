@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-06-11 — feat: Cover Letter Chain (Prompt 7)
+
+- Implemented `chains/cover_letter.py` with `generate_cover_letter(resume, job_description, analysis)`
+- Uses ChatPromptTemplate + StrOutputParser at temperature 0.5 for natural writing
+- Constrained to 3–4 paragraphs and under 400 words
+- Explicitly forbids generic filler phrases like "I am excited to apply" / "I am a team player"
+- Instructs model to map specific resume evidence to specific job requirements
+- Consumes `JobAnalysis.company`, `role`, `must_have`, and `matching_skills`
+
 ## 2026-06-11 — feat: Resume Tailorer Chain (Prompt 6)
 
 - Implemented `chains/tailorer.py` with `tailor_resume(resume, job_description, analysis)`
