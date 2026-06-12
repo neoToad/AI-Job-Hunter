@@ -1,15 +1,14 @@
 # Current Task
 
-## Step 3 — Phase A: Update `requirements.txt`
+## Step 4 — Phase B: Define `TailoredResume` Pydantic models
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Adding new dependencies to `requirements.txt`:
-- `Jinja2`
-- `pdfkit`
-- `python-docx==1.1.2`
+**What:** Adding Pydantic models to `chains/tailorer.py`:
+- `ExperienceEntry` — title, company, dates, bullets
+- `TailoredResume` — contact, summary, experience, education, skills
 
-Also documenting the non-Pip `wkhtmltopdf` binary prerequisite in a comment.
+These models will be used by `JsonOutputParser` in Step 6.
 
-**Next:** Define `TailoredResume` Pydantic models in `chains/tailorer.py` (Step 4).
+**Next:** Update `tailorer_system.txt` prompt (Step 5).

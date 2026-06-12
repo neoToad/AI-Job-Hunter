@@ -18,5 +18,10 @@ Branch: `feature/job-search-output-formats`
 - Sections: contact header, summary, experience (with bullets), education, skills.
 - CSS includes font sizing, spacing, and `page-break-inside: avoid` for experience blocks.
 
+## Step 3 — chore(deps): add Jinja2, pdfkit, and python-docx to requirements.txt
+
+- Added `Jinja2==3.1.6`, `pdfkit==1.0.0`, and `python-docx==1.1.2`.
+- Added comment documenting the non-Pip `wkhtmltopdf` binary prerequisite.
+
 <!-- New entries go below this line -->
 
