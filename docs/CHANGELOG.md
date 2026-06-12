@@ -165,4 +165,10 @@ Branch: `main`
   - Two tests for `analyze_job` using `FakeListChatModel`: one with valid JSON (asserts `JobAnalysis` fields), one with malformed JSON (asserts `ValueError`).
 - **Fix:** Updated `tests/conftest.py:mock_llm` to monkeypatch `get_llm` inside every chain module that imports it directly (`chains.analyzer`, `chains.tailorer`, `chains.cover_letter`, `chains.followup`). Python binds `from chains.llm import get_llm` at import time, so patching `chains.llm.get_llm` alone leaves stale references in the consumer modules.
 
+## [Step 12] Test remaining chains
+
+- Created `tests/test_tailorer.py` — happy-path test for `tailor_resume` using `mock_llm`; asserts string return.
+- Created `tests/test_cover_letter.py` — happy-path test for `generate_cover_letter` using `mock_llm`; asserts string return.
+- Created `tests/test_followup.py` — happy-path test for `draft_followup` using `mock_llm`; asserts string return.
+
 
