@@ -64,3 +64,23 @@ Added CRUD operations to the application tracker:
 - None
 
 ---
+
+### [Prompt 24] Add Streamlit UI with Analyze and Full Application modes
+
+**What was built:**
+Created `app.py` providing a web UI for the two most copy-paste-heavy commands:
+- Sidebar with mode radio buttons ("Analyze Job" / "Full Application") and Job Source input
+- Analyze mode: calls `parse_resume` + `analyze_job`, displays match score metric, recommendation badge (success/warning/error), and organized expanders for must-have, matching skills, missing skills, red flags, nice-to-have
+- Full Application mode: runs full pipeline with `st.progress()` bar, shows editable cover letter and tailored resume in `st.text_area` widgets
+- Dry run checkbox in Full Application mode only runs analysis with an info banner
+- Duplicate detection shows a warning and requires a confirmation checkbox before proceeding
+- Added `streamlit` to `requirements.txt`
+
+**Refactors/improvements:**
+- Used `@st.cache_resource` for resume parsing so it only runs once per Streamlit session
+- All logic imported directly from `chains/` and `utils/` — zero duplication of business logic
+
+**Deviations:**
+- None
+
+---

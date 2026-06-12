@@ -1,9 +1,9 @@
 # Current Task
 
-## Prompt 24 — Feature: Streamlit UI
+## Prompt 25 — Refactor Audit
 
 **What I'm actively working on:**
-Creating `app.py` in the project root with a Streamlit UI that provides Analyze Job and Full Application modes. Reusing all existing chain/utils logic with no duplication.
+Scanning every file in the job_search_tool project and producing `docs/refactor_plan.md` with findings on duplicated logic, long functions, inconsistent patterns, dead code, chain structure, and Streamlit/CLI overlap.
 
 **Next step:**
-Build the app with sidebar mode selector, job description text area, progress bar for apply pipeline, editable output text areas, and duplicate detection. Add `streamlit` to `requirements.txt`. Then commit and push.
+Write the refactor plan markdown, then commit. Move to Prompt 26 (Best Practices Audit) next.
