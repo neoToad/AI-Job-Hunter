@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Callable, TypeVar
 
 import asyncio
 import requests
@@ -55,6 +56,49 @@ def _parse_resume_for_cli() -> str:
             handle_error(
                 "Could not parse resume.",
                 hint="Try re-saving it as a text-based PDF.",
+            )
+
+
+T = TypeVar("T")
+
+
+def _run_chain_with_spinner(
+    description: str,
+    fn: Callable[[], T],
+    step_name: str = "",
+) -> T:
+    """Run *fn* inside a Rich spinner with generic exception handling.
+
+    Args:
+        description: Text shown next to the spinner.
+        fn: Callable that performs the LLM work.
+        step_name: Human-readable name used in the generic error message.
+            Falls back to *description* if omitted.
+
+    Returns:
+        Whatever *fn* returns.
+
+    Raises:
+        typer.Exit: On ConnectionError or any unexpected exception.
+    """
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+    ) as progress:
+        progress.add_task(description=description, total=None)
+        try:
+            return fn()
+        except ConnectionError:
+            handle_error(
+                "Cannot reach Ollama.",
+                hint="Is it running? Try: ollama serve",
+            )
+        except Exception as exc:
+            label = step_name or description.lower().rstrip(".")
+            handle_error(
+                f"Error during {label}: {exc}",
+                hint="Run `python main.py verify` to check your setup.",
             )
 
 
@@ -183,8 +227,10 @@ def verify() -> None:
     """Check that the resume PDF is parseable and Ollama is reachable."""
     # Resume parseability
     if not config.RESUME_PATH.exists():
-        console.print(f"[bold red]Error:[/] Resume not found at {config.RESUME_PATH}")
-        raise typer.Exit(1)
+        handle_error(
+            f"Resume not found at {config.RESUME_PATH}",
+            hint="Place your PDF at resume/resume.pdf",
+        )
 
     try:
         preview = preview_resume(config.RESUME_PATH, chars=300)
@@ -243,8 +289,10 @@ def analyze(
 ) -> None:
     """Parse resume, prompt for a job description, and display a structured analysis."""
     if not config.RESUME_PATH.exists():
-        console.print("[bold red]Error:[/] Resume not found. Run [cyan]verify[/cyan] first.")
-        raise typer.Exit(1)
+        handle_error(
+            "Resume not found. Run `verify` first.",
+            hint=f"Place your PDF at {config.RESUME_PATH}",
+        )
 
     resume_text = _parse_resume_for_cli()
 
@@ -259,24 +307,11 @@ def analyze(
         console.print("[yellow]Aborted.[/]")
         raise typer.Exit(0)
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Analyzing job...", total=None)
-        try:
-            result = analyze_job(resume_text, job_description)
-        except ConnectionError:
-            handle_error(
-                "Cannot reach Ollama.",
-                hint="Is it running? Try: ollama serve",
-            )
-        except Exception as exc:
-            handle_error(
-                f"Error during analysis: {exc}",
-                hint="Run `python main.py verify` to check your setup.",
-            )
+    result = _run_chain_with_spinner(
+        "Analyzing job...",
+        lambda: analyze_job(resume_text, job_description),
+        step_name="analysis",
+    )
 
     _display_analysis(result)
 
@@ -340,8 +375,10 @@ def apply(
 ) -> None:
     """Full pipeline: analyze, optionally tailor resume, generate cover letter, save, and log."""
     if not config.RESUME_PATH.exists():
-        console.print("[bold red]Error:[/] Resume not found. Run [cyan]verify[/cyan] first.")
-        raise typer.Exit(1)
+        handle_error(
+            "Resume not found. Run `verify` first.",
+            hint=f"Place your PDF at {config.RESUME_PATH}",
+        )
 
     resume_text = _parse_resume_for_cli()
 
@@ -356,24 +393,11 @@ def apply(
         console.print("[yellow]Aborted.[/]")
         raise typer.Exit(0)
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Analyzing job...", total=None)
-        try:
-            analysis = analyze_job(resume_text, job_description)
-        except ConnectionError:
-            handle_error(
-                "Cannot reach Ollama.",
-                hint="Is it running? Try: ollama serve",
-            )
-        except Exception as exc:
-            handle_error(
-                f"Error during analysis: {exc}",
-                hint="Run `python main.py verify` to check your setup.",
-            )
+    analysis = _run_chain_with_spinner(
+        "Analyzing job...",
+        lambda: analyze_job(resume_text, job_description),
+        step_name="analysis",
+    )
 
     _display_analysis(analysis)
 
@@ -410,56 +434,30 @@ def apply(
     if skip_tailor:
         tailored_resume = resume_text
         console.print("[yellow]Skipped resume tailoring.[/]")
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            progress.add_task(description="Generating cover letter...", total=None)
-            try:
-                cover_letter = generate_cover_letter(resume_text, job_description, analysis)
-            except ConnectionError:
-                handle_error(
-                    "Cannot reach Ollama.",
-                    hint="Is it running? Try: ollama serve",
-                )
-            except Exception as exc:
-                handle_error(
-                    f"Error generating cover letter: {exc}",
-                    hint="Run `python main.py verify` to check your setup.",
-                )
+        cover_letter = _run_chain_with_spinner(
+            "Generating cover letter...",
+            lambda: generate_cover_letter(resume_text, job_description, analysis),
+            step_name="cover letter generation",
+        )
     else:
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=console,
-        ) as progress:
-            progress.add_task(
-                description="Tailoring resume & generating cover letter...", total=None
-            )
-            try:
-
-                async def _tailor_and_cover():
-                    return await asyncio.gather(
-                        asyncio.to_thread(
-                            tailor_resume, resume_text, job_description, analysis
-                        ),
-                        asyncio.to_thread(
-                            generate_cover_letter, resume_text, job_description, analysis
-                        ),
-                    )
-
-                tailored_resume, cover_letter = asyncio.run(_tailor_and_cover())
-            except ConnectionError:
-                handle_error(
-                    "Cannot reach Ollama.",
-                    hint="Is it running? Try: ollama serve",
+        def _tailor_and_cover():
+            async def _inner():
+                return await asyncio.gather(
+                    asyncio.to_thread(
+                        tailor_resume, resume_text, job_description, analysis
+                    ),
+                    asyncio.to_thread(
+                        generate_cover_letter, resume_text, job_description, analysis
+                    ),
                 )
-            except Exception as exc:
-                handle_error(
-                    f"Error during tailoring or cover letter generation: {exc}",
-                    hint="Run `python main.py verify` to check your setup.",
-                )
+
+            return asyncio.run(_inner())
+
+        tailored_resume, cover_letter = _run_chain_with_spinner(
+            "Tailoring resume & generating cover letter...",
+            _tailor_and_cover,
+            step_name="tailoring and cover letter generation",
+        )
 
     # Save outputs
     slug = make_slug(analysis.company, analysis.role)
@@ -554,8 +552,7 @@ def followup(
             raise typer.Exit(0)
 
         if choice < 1 or choice > len(due):
-            console.print("[bold red]Invalid selection.[/]")
-            raise typer.Exit(1)
+            handle_error("Invalid selection.")
 
         selected = due[choice - 1]
         company = str(selected.get("Company", ""))
@@ -564,24 +561,11 @@ def followup(
 
     from chains.followup import draft_followup
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Drafting follow-up...", total=None)
-        try:
-            email = draft_followup(company, role, date_applied)
-        except ConnectionError:
-            handle_error(
-                "Cannot reach Ollama.",
-                hint="Is it running? Try: ollama serve",
-            )
-        except Exception as exc:
-            handle_error(
-                f"Error drafting follow-up: {exc}",
-                hint="Run `python main.py verify` to check your setup.",
-            )
+    email = _run_chain_with_spinner(
+        "Drafting follow-up...",
+        lambda: draft_followup(company, role, date_applied),
+        step_name="follow-up drafting",
+    )
 
     console.print(
         Panel(
@@ -631,10 +615,10 @@ def tracker(
                 hint="Example: python main.py tracker --delete --company 'Acme' --role 'Engineer'",
             )
         if not application_exists(config.TRACKER_PATH, company, role):
-            console.print(
-                f"[bold yellow]No application found for {company} — {role}.[/]"
+            handle_error(
+                f"No application found for {company} — {role}.",
+                hint="Run `tracker --show` to list existing entries.",
             )
-            raise typer.Exit(1)
 
         try:
             confirm = typer.confirm("Are you sure you want to delete this entry?")
@@ -674,11 +658,11 @@ def tracker(
             handle_error(f"Error editing entry: {exc}")
 
         if not updated:
-            console.print(
-                f"[bold yellow]No application found for {company} — {role}, "
-                f"or field '{field}' does not exist.[/]"
+            handle_error(
+                f"No application found for {company} — {role}, "
+                f"or field '{field}' does not exist.",
+                hint="Run `tracker --show` to list existing entries and valid fields.",
             )
-            raise typer.Exit(1)
 
         console.print(
             f"[bold green]Updated[/] {company} — {role}: {field} → [cyan]{value}[/cyan]"

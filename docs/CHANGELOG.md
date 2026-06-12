@@ -21,4 +21,17 @@ Branch: `main`
 - Replaced the duplicated ~12-line resume-parsing blocks in `analyze()` and `apply()` with a single call to `_parse_resume_for_cli()`.
 - No functional changes — purely DRY cleanup with a small UX improvement (the same error messages and hints are preserved exactly).
 
+## [Prompt 33] Extract _run_chain_with_spinner and standardize error handling
+
+- Added `_run_chain_with_spinner(description, fn, step_name)` in `main.py` that wraps the `Progress(SpinnerColumn(), TextColumn(...))` context and generic `ConnectionError` / `Exception` handling.
+- Replaced 5 duplicated Progress blocks across `analyze()`, `apply()`, and `followup()` with calls to `_run_chain_with_spinner()`.
+- Extracted the inline async `_tailor_and_cover()` from `apply()` into a named nested function so it can be passed cleanly to the spinner helper.
+- **Standardized error handling:** Converted all fatal-error exits from `console.print("[bold red]...")` + `raise typer.Exit(1)` to `handle_error()` calls. This includes:
+  - `verify()`: missing resume
+  - `analyze()` / `apply()`: missing resume before parsing
+  - `followup()`: invalid selection
+  - `tracker()`: missing entry on delete or edit
+- User aborts (`--dry-run`, confirmation declines, empty input) continue to use `console.print(...)` + `raise typer.Exit(0)` as required by the spec.
+
+
 
