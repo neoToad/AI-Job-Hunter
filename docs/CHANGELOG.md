@@ -120,4 +120,10 @@ Branch: `main`
 
 - Expanded the docstring on `first_run_check` in `main.py` to clarify that Typer invokes it automatically before every subcommand, that it checks for missing resume / `.env`, and that missing files are non-blocking so the user still sees the exact error from the target command.
 
+## [Step 7] Document unwrapped `ConnectionError` in chains
+
+- Added a module-level `.. note::` to `chains/analyzer.py`, `chains/tailorer.py`, `chains/cover_letter.py`, and `chains/followup.py`.
+- Each note states that the inner `.invoke()` call is not wrapped in try/except and that callers must handle `ConnectionError` and other LLM exceptions.
+- **Improvement:** Makes the intentional lack of error wrapping explicit to future maintainers and consumers of the chain API.
+
 

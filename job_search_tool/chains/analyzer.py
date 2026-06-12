@@ -2,6 +2,11 @@
 
 Compares a job description against a resume and returns a structured
 `JobAnalysis` with requirements, match score, and recommendation.
+
+.. note::
+    The `.invoke()` call inside `analyze_job` is **not** wrapped in a try/except.
+    Callers (CLI, Streamlit UI, tests) are responsible for handling
+    `ConnectionError` and other exceptions from the LLM client.
 """
 
 from __future__ import annotations

@@ -1,6 +1,11 @@
 """Follow-up email drafter chain.
 
 Generates a short, polite follow-up email for a job application.
+
+.. note::
+    The `.invoke()` call inside `draft_followup` is **not** wrapped in a try/except.
+    Callers (CLI, Streamlit UI, tests) are responsible for handling
+    `ConnectionError` and other exceptions from the LLM client.
 """
 
 from __future__ import annotations

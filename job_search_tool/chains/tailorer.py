@@ -3,6 +3,11 @@
 Rewrites a resume to better align with a specific job description,
 emphasizing matching skills and incorporating relevant keywords without
 inventing experience.
+
+.. note::
+    The `.invoke()` call inside `tailor_resume` is **not** wrapped in a try/except.
+    Callers (CLI, Streamlit UI, tests) are responsible for handling
+    `ConnectionError` and other exceptions from the LLM client.
 """
 
 from __future__ import annotations

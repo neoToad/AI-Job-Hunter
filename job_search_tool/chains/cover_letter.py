@@ -2,6 +2,11 @@
 
 Produces a concise, evidence-based cover letter that maps specific resume
 achievements to the job's must-have requirements.
+
+.. note::
+    The `.invoke()` call inside `generate_cover_letter` is **not** wrapped in a try/except.
+    Callers (CLI, Streamlit UI, tests) are responsible for handling
+    `ConnectionError` and other exceptions from the LLM client.
 """
 
 from __future__ import annotations
