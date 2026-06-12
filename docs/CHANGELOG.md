@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-11 — feat: Wiring review, error handling, and README (Prompt 10)
+
+- Reviewed all imports across the project for consistency
+- Confirmed every chain file imports `get_llm` from `chains.llm`
+- Confirmed tracker handles missing `tracker.xlsx` gracefully (creates on first write, returns empty lists when missing)
+- Confirmed `main.py` handles exceptions gracefully: resume/Ollama/LLM errors print helpful messages and exit with `typer.Exit(1)` instead of raw tracebacks
+- Added optional `source` prompt to the `apply` command for better tracker data quality
+- Fixed `tracker` command to only display the table when `--show` is passed; otherwise prints a usage hint
+- Wrote `README.md` with setup instructions, local Ollama guide (`ollama pull llama3.1`, `ollama serve`), Ollama Cloud Pro configuration, and CLI command examples
+
 ## 2026-06-11 — feat: Full Typer CLI entry point (Prompt 9)
 
 - Rewrote `main.py` as a complete Typer app with Rich formatting and `SpinnerColumn` progress indicators
