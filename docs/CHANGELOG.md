@@ -35,5 +35,11 @@ Branch: `feature/job-search-output-formats`
 - Updated `tailorer_system.txt` to remove inline JSON example (avoids LangChain f-string curly-brace conflicts).
 - Updated `test_tailorer.py` to assert dict return values and test malformed JSON path.
 
+## Step 8 — refactor(main): update CLI filenames to support .pdf output
+
+- Removed hardcoded `.txt` extension from `make_slug()` in `utils/helpers.py`; callers now append their own extension.
+- Updated `followup` command in `main.py` to explicitly append `.txt` when saving follow-up emails.
+- The `apply()` summary panel already displays the correct extension via the dynamic path.
+
 <!-- New entries go below this line -->
 

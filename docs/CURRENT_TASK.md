@@ -1,13 +1,13 @@
 # Current Task
 
-## Step 8 — Phase B: Update CLI output labels
+## Step 9 — Phase B: Update Streamlit resume UI
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating `main.py` and `utils/helpers.py` so the CLI output paths reflect the new formats:
-- Fix `make_slug` to stop hardcoding `.txt` (callers now append their own extensions)
-- Update follow-up save path in `main.py` to explicitly append `.txt`
-- The `apply()` summary panel already shows the correct extension via the path object
+**What:** Updating `app.py` to:
+- Store `saved_paths` in session state after pipeline completion
+- Replace the editable "Tailored Resume" text area with a download button for the `.pdf`
+- Keep a read-only preview of the resume dict using `st.json` or formatted markdown
 
-**Next:** Update Streamlit resume UI in `app.py` (Step 9).
+**Next:** Wire DOCX rendering into pipeline (Step 10).

@@ -217,6 +217,7 @@ if mode == "Full Application" and run_clicked:
 
     st.session_state.tailored_resume = result.tailored_resume
     st.session_state.cover_letter = result.cover_letter
+    st.session_state.saved_paths = result.saved_paths
     st.session_state.apply_complete = True
     st.success("Application logged successfully!")
 
@@ -246,8 +247,14 @@ if mode == "Full Application" and "analysis" in st.session_state:
         )
 
         st.subheader("Tailored Resume")
-        st.text_area(
-            "Editable tailored resume",
-            height=250,
-            key="tailored_resume",
-        )
+        resume_path = st.session_state.saved_paths.get("resume")
+        if resume_path and Path(resume_path).exists():
+            with open(resume_path, "rb") as f:
+                st.download_button(
+                    label="Download PDF Resume",
+                    data=f.read(),
+                    file_name=Path(resume_path).name,
+                    mime="application/pdf",
+                )
+        else:
+            st.info("Tailored resume PDF not found.")
