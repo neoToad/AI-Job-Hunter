@@ -1,17 +1,14 @@
 # Current Task
 
-## Step 5 — Phase B: Update `tailorer_system.txt` prompt
+## Step 6 — Phase B: Refactor `tailor_resume` chain
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating the system prompt to instruct the LLM to return valid JSON with keys:
-- contact
-- summary
-- experience
-- education
-- skills
+**What:** Updating `chains/tailorer.py` to:
+- Use `JsonOutputParser` with `TailoredResume` Pydantic model
+- Catch `OutputParserException` and raise `ValueError` with friendly retry message
+- Return a structured dict instead of a plain string
+- Update the existing test to work with the new JSON response
 
-And to forbid Markdown and plain text.
-
-**Next:** Refactor `tailor_resume` chain to use JsonOutputParser (Step 6).
+**Next:** Wire PDF rendering into `pipelines.py` (Step 7).

@@ -12,7 +12,10 @@ inventing experience.
 
 from __future__ import annotations
 
-from langchain_core.output_parsers import StrOutputParser
+from typing import Any
+
+from langchain_core.exceptions import OutputParserException
+from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 
@@ -44,7 +47,7 @@ class TailoredResume(BaseModel):
     skills: list[str] = Field(description="Relevant skills for the target role.")
 
 
-def tailor_resume(resume: str, job_description: str, analysis: JobAnalysis) -> str:
+def tailor_resume(resume: str, job_description: str, analysis: JobAnalysis) -> dict[str, Any]:
     """Return a tailored version of *resume* optimized for *job_description*.
 
     Args:
@@ -54,23 +57,39 @@ def tailor_resume(resume: str, job_description: str, analysis: JobAnalysis) -> s
             must-have requirements and matching skills).
 
     Returns:
-        The tailored resume as a plain string.
+        A structured dictionary representing the tailored resume with keys:
+        ``contact``, ``summary``, ``experience``, ``education``, ``skills``.
+
+    Raises:
+        ValueError: If the LLM response cannot be parsed as valid JSON matching
+            the expected schema.
     """
+    parser = JsonOutputParser(pydantic_object=TailoredResume)
+
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", load_prompt("tailorer_system.txt")),
             ("human", load_prompt("tailorer_human.txt")),
         ]
-    )
+    ).partial(format_instructions=parser.get_format_instructions())
 
     llm = get_llm(temperature=0.2)
-    chain = prompt | llm | StrOutputParser()
+    chain = prompt | llm | parser
 
-    return chain.invoke(
-        {
-            "resume": resume,
-            "job_description": job_description,
-            "must_have": "\n".join(f"- {item}" for item in analysis.must_have),
-            "matching_skills": "\n".join(f"- {item}" for item in analysis.matching_skills),
-        }
-    )
+    try:
+        raw = chain.invoke(
+            {
+                "resume": resume,
+                "job_description": job_description,
+                "must_have": "\n".join(f"- {item}" for item in analysis.must_have),
+                "matching_skills": "\n".join(f"- {item}" for item in analysis.matching_skills),
+            }
+        )
+    except OutputParserException as exc:
+        raise ValueError(
+            "AI returned unexpected format. Try running again."
+        ) from exc
+
+    # Validate through the Pydantic model and return as a plain dict.
+    validated = TailoredResume.model_validate(raw)
+    return validated.model_dump()

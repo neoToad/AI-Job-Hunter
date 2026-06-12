@@ -9,32 +9,5 @@ Rules:
 - Be specific and quantify where the original resume does
 
 Output format:
-Return **only** valid JSON conforming to this exact structure:
-{
-  "contact": {
-    "name": "...",
-    "email": "...",
-    "phone": "...",
-    "location": "...",
-    "linkedin": "..."
-  },
-  "summary": "...",
-  "experience": [
-    {
-      "title": "...",
-      "company": "...",
-      "dates": "...",
-      "bullets": ["...", "..."]
-    }
-  ],
-  "education": [
-    {
-      "degree": "...",
-      "school": "...",
-      "dates": "..."
-    }
-  ],
-  "skills": ["...", "..."]
-}
-
+Return ONLY valid JSON conforming to the schema described in the format instructions below.
 Do NOT return Markdown, plain text, or explanations. Only JSON.
