@@ -1,10 +1,11 @@
 # Current Task
 
-## Step 7: Document unwrapped `ConnectionError` in chains
+## Step 8: Create test structure and `conftest.py`
 
 **Status:** In progress
 
 **What I'm doing:**
-- Add a note to the module-level docstrings in `chains/analyzer.py`, `chains/tailorer.py`, `chains/cover_letter.py`, and `chains/followup.py` stating that `.invoke()` calls are not wrapped and callers must handle connection errors.
+- Created `tests/` directory at the repo root with `conftest.py` containing fixtures: `sample_resume_text`, `sample_job_description`, `sample_job_analysis`, `tmp_tracker`, and `mock_llm`.
+- Created `pyproject.toml` at the repo root to configure `pythonpath = ["job_search_tool"]` so tests can import project modules using the same absolute paths the CLI and Streamlit use.
 
-**Next step:** Commit and push, then move to Phase B Step 8 (Create test structure and `conftest.py`).
+**Next step:** Commit and push, then move to Step 9 (Test `utils/resume_parser.py`).

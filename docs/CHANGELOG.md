@@ -126,4 +126,15 @@ Branch: `main`
 - Each note states that the inner `.invoke()` call is not wrapped in try/except and that callers must handle `ConnectionError` and other LLM exceptions.
 - **Improvement:** Makes the intentional lack of error wrapping explicit to future maintainers and consumers of the chain API.
 
+## [Step 8] Create test structure and `conftest.py`
+
+- Created `tests/` directory at the repo root.
+- Added `tests/conftest.py` with five shared fixtures per the testing plan:
+  - `sample_resume_text`, `sample_job_description`, `sample_job_analysis`
+  - `tmp_tracker` (pre-seeded with one row)
+  - `mock_llm` (monkey-patches `chains.llm.get_llm` with `FakeListChatModel`)
+- Added `pyproject.toml` with `[tool.pytest.ini_options]`:
+  - `pythonpath = ["job_search_tool"]` so test imports mirror the app's import style.
+  - `testpaths = ["tests"]` and `markers = ["ollama"]` for CI filtering.
+
 

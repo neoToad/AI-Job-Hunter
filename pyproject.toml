@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+pythonpath = ["job_search_tool"]
+testpaths = ["tests"]
+addopts = "-v"
+markers = [
+    "ollama: tests requiring a real Ollama connection",
+]
