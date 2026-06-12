@@ -116,4 +116,8 @@ Branch: `main`
 - In `main.py:get_job_description`, the `--file` validation already checked `file.is_file()`, but it used `handle_error()` which exits with code 1.
 - **Change:** Replaced the `handle_error()` call with `raise typer.BadParameter(...)` so Typer presents the error as a clean parameter-validation message (exit code 2) consistent with other CLI tools.
 
+## [Step 6] Add docstring to `first_run_check`
+
+- Expanded the docstring on `first_run_check` in `main.py` to clarify that Typer invokes it automatically before every subcommand, that it checks for missing resume / `.env`, and that missing files are non-blocking so the user still sees the exact error from the target command.
+
 

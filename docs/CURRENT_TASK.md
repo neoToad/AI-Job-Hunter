@@ -1,11 +1,10 @@
 # Current Task
 
-## Step 5: Validate `--file` path is actually a file
+## Step 6: Add docstring to `first_run_check`
 
 **Status:** In progress
 
 **What I'm doing:**
-- In `job_search_tool/main.py`, `get_job_description` already checks `file.is_file()`, but it uses `handle_error()` instead of the Typer-native `typer.BadParameter`.
-- Updating the check to raise `typer.BadParameter` so Typer prints a clean validation error before invoking the command.
+- In `job_search_tool/main.py:72`, expand the docstring on the Typer callback to explain it runs before every subcommand to check for missing resume / `.env`.
 
-**Next step:** Commit and push, then move to Step 6 (Add docstring to `first_run_check`).
+**Next step:** Commit and push, then move to Step 7 (Document unwrapped ConnectionError in chains).

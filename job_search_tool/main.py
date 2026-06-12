@@ -192,7 +192,15 @@ def _maybe_validate_jd(job_description: str) -> bool:
 
 @app.callback(invoke_without_command=True)
 def first_run_check(ctx: typer.Context) -> None:
-    """Print a first-run hint if the resume or .env file is missing."""
+    """Run before every subcommand to check for a missing resume or .env file.
+
+    Typer invokes this callback automatically before each CLI command. If the
+    resume PDF or the `.env` file is absent, a friendly welcome panel is printed
+    with setup instructions. Missing files are non-blocking — the subcommand
+    still runs so the user can see the exact error (e.g., `verify`).
+    """
+    # Only run when no subcommand is given (typer prints help) or before a subcommand runs.
+    # Typer invokes callback before each command; ctx.invoked_subcommand tells us which command is running.
     # Only run when no subcommand is given (typer prints help) or before a subcommand runs.
     # Typer invokes callback before each command; ctx.invoked_subcommand tells us which command is running.
     if ctx.invoked_subcommand is None:
