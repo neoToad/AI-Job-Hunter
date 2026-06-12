@@ -175,3 +175,44 @@ def test_show_tracker_empty(tmp_path: Path) -> None:
         show_tracker(path)
     mock_print.assert_called_once()
     assert "No applications found" in mock_print.call_args[0][0]
+
+
+def test_show_tracker_with_orphaned_column(tmp_path: Path) -> None:
+    """Render an old tracker that still has the 'Cover Letter Path' column."""
+    path = tmp_path / "tracker.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Applications"
+    headers = [
+        "Company",
+        "Role",
+        "Date Applied",
+        "Source",
+        "Match Score",
+        "Status",
+        "Follow-up Date",
+        "Notes",
+        "Cover Letter Path",
+    ]
+    ws.append(headers)
+    ws.append([
+        "OldCo",
+        "Engineer",
+        "2024-01-01",
+        "Indeed",
+        "90",
+        "Applied",
+        "2024-01-15",
+        "Note here",
+        "/tmp/cover_letter.txt",
+    ])
+    wb.save(path)
+
+    with patch("utils.tracker.console.print") as mock_print:
+        show_tracker(path)
+    mock_print.assert_called_once()
+    output = mock_print.call_args[0][0]
+    # output is a Rich Table object; verify it has the orphaned column
+    from rich.table import Table
+    assert isinstance(output, Table)
+    assert len(output.columns) == 9  # includes orphaned "Cover Letter Path"

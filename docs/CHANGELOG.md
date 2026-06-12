@@ -81,5 +81,10 @@ Branch: `feature/job-search-output-formats`
 - Added `TestRenderCoverLetterDocx` asserting `.docx` creation and paragraph text.
 - Verified `Document` paragraphs match input split on double newlines.
 
+## Step 16 — test(chains): add explicit key-check test for tailor_resume JSON output
+
+- Added `test_tailor_resume_has_expected_keys` asserting the dict contains exactly:
+  `contact`, `summary`, `experience`, `education`, `skills`.
+
 <!-- New entries go below this line -->
 

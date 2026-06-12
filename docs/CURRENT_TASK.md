@@ -1,12 +1,12 @@
 # Current Task
 
-## Step 16 — Phase D: Unit test `tailor_resume` with JSON output
+## Step 17 — Phase D: Update tracker tests
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Adding an explicit test to `tests/test_tailorer.py` that:
-- Uses `FakeListChatModel` returning valid JSON
-- Asserts the returned dict contains the expected top-level keys: contact, summary, experience, education, skills
+**What:** Updating `tests/test_tracker.py` to:
+- Remove remaining `cover_letter_path` assertions (already done in Step 13)
+- Add a dedicated test for an old tracker that contains the orphaned `"Cover Letter Path"` column with data rows
 
-**Next:** Update tracker tests (Step 17).
+**Next:** Integration smoke tests (Step 18).
