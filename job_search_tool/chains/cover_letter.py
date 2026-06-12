@@ -6,18 +6,12 @@ achievements to the job's must-have requirements.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 from chains.analyzer import JobAnalysis
 from chains.llm import get_llm
-
-
-def _load_prompt(name: str) -> str:
-    """Load a prompt template from the ``prompts/`` directory."""
-    return (Path(__file__).parent.parent / "prompts" / name).read_text()
+from chains.utils import load_prompt
 
 
 def generate_cover_letter(resume: str, job_description: str, analysis: JobAnalysis) -> str:
@@ -33,8 +27,8 @@ def generate_cover_letter(resume: str, job_description: str, analysis: JobAnalys
     """
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", _load_prompt("cover_letter_system.txt")),
-            ("human", _load_prompt("cover_letter_human.txt")),
+            ("system", load_prompt("cover_letter_system.txt")),
+            ("human", load_prompt("cover_letter_human.txt")),
         ]
     )
 

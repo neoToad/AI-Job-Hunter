@@ -6,7 +6,6 @@ Compares a job description against a resume and returns a structured
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Literal
 
 from langchain_core.exceptions import OutputParserException
@@ -15,11 +14,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 
 from chains.llm import get_llm
-
-
-def _load_prompt(name: str) -> str:
-    """Load a prompt template from the ``prompts/`` directory."""
-    return (Path(__file__).parent.parent / "prompts" / name).read_text()
+from chains.utils import load_prompt
 
 
 class JobAnalysis(BaseModel):
@@ -93,8 +88,8 @@ def analyze_job(resume: str, job_description: str) -> JobAnalysis:
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", _load_prompt("analyzer_system.txt")),
-            ("human", _load_prompt("analyzer_human.txt")),
+            ("system", load_prompt("analyzer_system.txt")),
+            ("human", load_prompt("analyzer_human.txt")),
         ]
     ).partial(format_instructions=parser.get_format_instructions())
 
