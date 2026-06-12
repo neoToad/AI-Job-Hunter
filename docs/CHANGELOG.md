@@ -63,5 +63,12 @@ Branch: `feature/job-search-output-formats`
 - Added a `st.download_button` for the `.docx` file below the text area.
 - Used correct MIME type `application/vnd.openxmlformats-officedocument.wordprocessingml.document`.
 
+## Step 13 — refactor(tracker): remove Cover Letter Path column and parameter
+
+- Removed `"Cover Letter Path"` from `_HEADERS` and `_EDITABLE_FIELDS`.
+- Dropped `cover_letter_path` parameter from `add_application()`.
+- Updated all callers in `pipelines.py`, `conftest.py`, `test_tracker.py`, and `test_cli.py`.
+- `show_tracker` now reads headers from the worksheet itself, gracefully handling old trackers with orphaned columns.
+
 <!-- New entries go below this line -->
 
