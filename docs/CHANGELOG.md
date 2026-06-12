@@ -100,3 +100,22 @@ Three markdown audit plans with no code changes:
 - None
 
 ---
+
+### [Prompt 28] Add documentation plan and implement all docs
+
+**What was built:**
+Phase 1 — produced `docs/documentation_plan.md` identifying gaps in README, user guide, prompt guide, and troubleshooting.
+
+Phase 2 — implemented all documentation:
+- Updated `README.md`: added Python 3.11+ prerequisite, Streamlit UI section, `--file`/`--url` examples for analyze/apply, `tracker --delete`/`--edit` examples, updated project structure with `prompts/` and `app.py`, troubleshooting quick-reference table
+- Created `docs/user_guide.md`: daily workflow (find → analyze → apply → track → status → follow up), interpreting match scores (≥70 apply, 50–69 stretch, <50 skip), ASCII mockups of CLI output, Streamlit UI walkthrough, productivity tips
+- Created `docs/prompt_guide.md`: prompt file map per chain, available variables table (`{resume}`, `{job_description}`, `{company}`, `{role}`, `{must_have}`, `{matching_skills}`, `{date_applied}`), tips for improving cover letter quality and match score accuracy, common mistakes when editing prompts (renaming placeholders, removing format instructions, vague system prompts)
+- Created `docs/troubleshooting.md`: Ollama not reachable, resume PDF won't parse, LLM malformed JSON, tracker file locked, URL fetch fails/empty content, Streamlit won't start
+
+**Refactors/improvements:**
+- README now accurately reflects the current implementation instead of the legacy "type END" behavior
+
+**Deviations:**
+- None
+
+---

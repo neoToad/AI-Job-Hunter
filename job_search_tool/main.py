@@ -8,21 +8,18 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import asyncio
 import requests
 import typer
-from bs4 import BeautifulSoup
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 import config
-from chains.analyzer import JobAnalysis, analyze_job, validate_job_description
-from chains.cover_letter import generate_cover_letter
-from chains.followup import draft_followup
-from chains.tailorer import tailor_resume
-from utils.helpers import handle_error, make_slug
-from utils.resume_parser import parse_resume, preview_resume
+from chains.analyzer import JobAnalysis
+from utils.helpers import fetch_url_text, handle_error, make_slug
+from utils.resume_parser import get_resume_text, preview_resume
 from utils.tracker import (
     add_application,
     application_exists,
@@ -76,8 +73,7 @@ def get_job_description(file: Path | None, url: str | None) -> str:
             )
 
         try:
-            resp = requests.get(url, timeout=10)
-            resp.raise_for_status()
+            cleaned = fetch_url_text(url, timeout=10)
         except requests.Timeout:
             handle_error(
                 f"Request to {url} timed out.",
@@ -88,17 +84,6 @@ def get_job_description(file: Path | None, url: str | None) -> str:
                 f"Failed to fetch URL: {exc}",
                 hint="Check the URL and your network connection.",
             )
-
-        soup = BeautifulSoup(resp.text, "lxml")
-        # Remove non-content tags
-        for tag_name in ("script", "style", "nav", "header", "footer"):
-            for tag in soup.find_all(tag_name):
-                tag.decompose()
-
-        text = soup.get_text(separator="\n", strip=True)
-        # Deduplicate blank lines
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-        cleaned = "\n".join(lines)
 
         if len(cleaned) < 200:
             console.print(
@@ -234,7 +219,7 @@ def analyze(
 
     with console.status("[bold green]Parsing resume..."):
         try:
-            resume_text = parse_resume(config.RESUME_PATH)
+            resume_text = get_resume_text(config.RESUME_PATH)
         except FileNotFoundError:
             handle_error(
                 f"Resume not found at {config.RESUME_PATH}",
@@ -250,6 +235,8 @@ def analyze(
     if not job_description.strip():
         console.print("[yellow]No job description provided — exiting.[/]")
         raise typer.Exit(0)
+
+    from chains.analyzer import analyze_job, validate_job_description
 
     if not _maybe_validate_jd(job_description):
         console.print("[yellow]Aborted.[/]")
@@ -341,7 +328,7 @@ def apply(
 
     with console.status("[bold green]Parsing resume..."):
         try:
-            resume_text = parse_resume(config.RESUME_PATH)
+            resume_text = get_resume_text(config.RESUME_PATH)
         except FileNotFoundError:
             handle_error(
                 f"Resume not found at {config.RESUME_PATH}",
@@ -357,6 +344,8 @@ def apply(
     if not job_description.strip():
         console.print("[yellow]No job description provided — exiting.[/]")
         raise typer.Exit(0)
+
+    from chains.analyzer import analyze_job, validate_job_description
 
     if not _maybe_validate_jd(job_description):
         console.print("[yellow]Aborted.[/]")
@@ -409,19 +398,21 @@ def apply(
             "already exists in the tracker."
         )
 
-    # Tailor resume
+    from chains.tailorer import tailor_resume
+    from chains.cover_letter import generate_cover_letter
+
+    # Tailor resume and generate cover letter concurrently
     if skip_tailor:
         tailored_resume = resume_text
         console.print("[yellow]Skipped resume tailoring.[/]")
-    else:
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            progress.add_task(description="Tailoring resume...", total=None)
+            progress.add_task(description="Generating cover letter...", total=None)
             try:
-                tailored_resume = tailor_resume(resume_text, job_description, analysis)
+                cover_letter = generate_cover_letter(resume_text, job_description, analysis)
             except ConnectionError:
                 handle_error(
                     "Cannot reach Ollama.",
@@ -429,29 +420,41 @@ def apply(
                 )
             except Exception as exc:
                 handle_error(
-                    f"Error tailoring resume: {exc}",
+                    f"Error generating cover letter: {exc}",
                     hint="Run `python main.py verify` to check your setup.",
                 )
+    else:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            progress.add_task(
+                description="Tailoring resume & generating cover letter...", total=None
+            )
+            try:
 
-    # Generate cover letter
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-    ) as progress:
-        progress.add_task(description="Generating cover letter...", total=None)
-        try:
-            cover_letter = generate_cover_letter(resume_text, job_description, analysis)
-        except ConnectionError:
-            handle_error(
-                "Cannot reach Ollama.",
-                hint="Is it running? Try: ollama serve",
-            )
-        except Exception as exc:
-            handle_error(
-                f"Error generating cover letter: {exc}",
-                hint="Run `python main.py verify` to check your setup.",
-            )
+                async def _tailor_and_cover():
+                    return await asyncio.gather(
+                        asyncio.to_thread(
+                            tailor_resume, resume_text, job_description, analysis
+                        ),
+                        asyncio.to_thread(
+                            generate_cover_letter, resume_text, job_description, analysis
+                        ),
+                    )
+
+                tailored_resume, cover_letter = asyncio.run(_tailor_and_cover())
+            except ConnectionError:
+                handle_error(
+                    "Cannot reach Ollama.",
+                    hint="Is it running? Try: ollama serve",
+                )
+            except Exception as exc:
+                handle_error(
+                    f"Error during tailoring or cover letter generation: {exc}",
+                    hint="Run `python main.py verify` to check your setup.",
+                )
 
     # Save outputs
     slug = make_slug(analysis.company, analysis.role)
@@ -553,6 +556,8 @@ def followup(
         company = str(selected.get("Company", ""))
         role = str(selected.get("Role", ""))
         date_applied = str(selected.get("Date Applied", ""))
+
+    from chains.followup import draft_followup
 
     with Progress(
         SpinnerColumn(),

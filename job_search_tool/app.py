@@ -9,15 +9,15 @@ All business logic is imported from chains/ and utils/ — no duplication.
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 import streamlit as st
 
 import config
 from chains.analyzer import analyze_job
-from chains.cover_letter import generate_cover_letter
-from chains.tailorer import tailor_resume
-from utils.resume_parser import parse_resume
+from utils.helpers import make_slug
+from utils.resume_parser import get_resume_text
 from utils.tracker import add_application, application_exists
 
 
@@ -52,7 +52,18 @@ def _cached_resume_text() -> str:
     """Parse the resume once per Streamlit session."""
     if not config.RESUME_PATH.exists():
         raise FileNotFoundError(f"Resume not found at {config.RESUME_PATH}")
-    return parse_resume(config.RESUME_PATH)
+    return get_resume_text(config.RESUME_PATH)
+
+
+# --- Session-state helpers ----------------------------------------------------
+
+def _clear_stale_state(current_jd: str) -> None:
+    """Remove cached results if the job description has changed."""
+    last_jd = st.session_state.get("last_job_description", "")
+    if last_jd != current_jd:
+        for key in ("analyze_result", "tailored_resume", "cover_letter", "apply_complete"):
+            st.session_state.pop(key, None)
+        st.session_state.last_job_description = current_jd
 
 
 # --- Analyze Job mode --------------------------------------------------------
@@ -84,6 +95,11 @@ if mode == "Analyze Job" and run_clicked:
         except Exception as exc:
             st.error(f"Error during analysis: {exc}")
             st.stop()
+
+    st.session_state.analyze_result = result
+
+if mode == "Analyze Job" and "analyze_result" in st.session_state:
+    result = st.session_state.analyze_result
 
     col1, col2 = st.columns(2)
     with col1:
@@ -126,6 +142,9 @@ if mode == "Analyze Job" and run_clicked:
 
 # --- Full Application mode ---------------------------------------------------
 
+if mode == "Full Application":
+    _clear_stale_state(job_description)
+
 if mode == "Full Application" and run_clicked:
     if not job_description.strip():
         st.warning("Please paste a job description first.")
@@ -155,20 +174,7 @@ if mode == "Full Application" and run_clicked:
 
     progress_bar.progress(25, text="Analysis complete")
 
-    # Display analysis results
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("Match Score", f"{analysis.match_score}/100")
-    with col2:
-        rec = analysis.recommendation
-        if rec == "apply":
-            st.success("Recommendation: APPLY")
-        elif rec == "stretch":
-            st.warning("Recommendation: STRETCH")
-        else:
-            st.error("Recommendation: SKIP")
-
-    st.markdown(f"**Summary:** {analysis.summary}")
+    st.session_state.analysis = analysis
 
     if dry_run:
         st.info("Dry run — nothing saved")
@@ -185,31 +191,35 @@ if mode == "Full Application" and run_clicked:
         if not confirm_duplicate:
             st.stop()
 
-    # Tailor resume
-    progress_bar.progress(50, text="Tailoring resume...")
+    # Tailor resume + cover letter concurrently
+    from chains.tailorer import tailor_resume
+    from chains.cover_letter import generate_cover_letter
+
+    progress_bar.progress(50, text="Tailoring resume & generating cover letter...")
     try:
-        tailored_resume = tailor_resume(resume_text, job_description, analysis)
+
+        async def _tailor_and_cover():
+            return await asyncio.gather(
+                asyncio.to_thread(
+                    tailor_resume, resume_text, job_description, analysis
+                ),
+                asyncio.to_thread(
+                    generate_cover_letter, resume_text, job_description, analysis
+                ),
+            )
+
+        tailored_resume, cover_letter = asyncio.run(_tailor_and_cover())
     except ConnectionError:
         st.error("Cannot reach Ollama. Is it running? Try: ollama serve")
         st.stop()
     except Exception as exc:
-        st.error(f"Error tailoring resume: {exc}")
+        st.error(f"Error during tailoring or cover letter generation: {exc}")
         st.stop()
 
-    # Generate cover letter
-    progress_bar.progress(75, text="Generating cover letter...")
-    try:
-        cover_letter = generate_cover_letter(resume_text, job_description, analysis)
-    except ConnectionError:
-        st.error("Cannot reach Ollama. Is it running? Try: ollama serve")
-        st.stop()
-    except Exception as exc:
-        st.error(f"Error generating cover letter: {exc}")
-        st.stop()
+    st.session_state.tailored_resume = tailored_resume
+    st.session_state.cover_letter = cover_letter
 
     # Save outputs
-    from utils.helpers import make_slug
-
     slug = make_slug(analysis.company, analysis.role)
     resume_out = config.TAILORED_RESUMES_DIR / f"resume_{slug}"
     cl_out = config.COVER_LETTERS_DIR / f"cover_letter_{slug}"
@@ -238,9 +248,36 @@ if mode == "Full Application" and run_clicked:
 
     progress_bar.progress(100, text="Done!")
     st.success("Application logged successfully!")
+    st.session_state.apply_complete = True
 
-    st.subheader("Cover Letter")
-    st.text_area("Editable cover letter", value=cover_letter, height=250)
+if mode == "Full Application" and "analysis" in st.session_state:
+    analysis = st.session_state.analysis
 
-    st.subheader("Tailored Resume")
-    st.text_area("Editable tailored resume", value=tailored_resume, height=250)
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Match Score", f"{analysis.match_score}/100")
+    with col2:
+        rec = analysis.recommendation
+        if rec == "apply":
+            st.success("Recommendation: APPLY")
+        elif rec == "stretch":
+            st.warning("Recommendation: STRETCH")
+        else:
+            st.error("Recommendation: SKIP")
+
+    st.markdown(f"**Summary:** {analysis.summary}")
+
+    if st.session_state.get("apply_complete"):
+        st.subheader("Cover Letter")
+        st.text_area(
+            "Editable cover letter",
+            value=st.session_state.get("cover_letter", ""),
+            height=250,
+        )
+
+        st.subheader("Tailored Resume")
+        st.text_area(
+            "Editable tailored resume",
+            value=st.session_state.get("tailored_resume", ""),
+            height=250,
+        )
