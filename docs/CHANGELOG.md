@@ -86,5 +86,10 @@ Branch: `feature/job-search-output-formats`
 - Added `test_tailor_resume_has_expected_keys` asserting the dict contains exactly:
   `contact`, `summary`, `experience`, `education`, `skills`.
 
+## Step 17 — test(tracker): add test for old tracker with orphaned Cover Letter Path column
+
+- Added `test_show_tracker_with_orphaned_column` verifying `show_tracker` handles 9-column worksheets gracefully.
+- Removed remaining `cover_letter_path` assertions already cleaned up in Step 13.
+
 <!-- New entries go below this line -->
 

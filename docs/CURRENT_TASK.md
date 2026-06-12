@@ -1,12 +1,12 @@
 # Current Task
 
-## Step 17 — Phase D: Update tracker tests
+## Step 18 — Phase D: Integration smoke tests
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating `tests/test_tracker.py` to:
-- Remove remaining `cover_letter_path` assertions (already done in Step 13)
-- Add a dedicated test for an old tracker that contains the orphaned `"Cover Letter Path"` column with data rows
+**What:** Adding integration smoke tests to `tests/test_cli.py` that:
+- Run `apply --dry-run` and assert no `.txt` resume or cover-letter files are written in `output/`
+- Run a full mocked `apply` (without `--dry-run`) and assert `.pdf` and `.docx` files are created
 
-**Next:** Integration smoke tests (Step 18).
+**Next:** CI compatibility (Step 19).
