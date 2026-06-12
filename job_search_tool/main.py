@@ -34,6 +34,30 @@ app = typer.Typer(help="Job search automation CLI.")
 console = Console()
 
 
+def _parse_resume_for_cli() -> str:
+    """Parse the resume with a CLI spinner and uniform error handling.
+
+    Returns:
+        The full text of the resume.
+
+    Raises:
+        typer.Exit: If the resume is missing or cannot be parsed.
+    """
+    with console.status("[bold green]Parsing resume..."):
+        try:
+            return get_resume_text(config.RESUME_PATH)
+        except FileNotFoundError:
+            handle_error(
+                f"Resume not found at {config.RESUME_PATH}",
+                hint="Place your PDF at resume/resume.pdf",
+            )
+        except ValueError:
+            handle_error(
+                "Could not parse resume.",
+                hint="Try re-saving it as a text-based PDF.",
+            )
+
+
 def _read_stdin() -> str:
     """Read the full job description from stdin until EOF."""
     console.print(
@@ -222,19 +246,7 @@ def analyze(
         console.print("[bold red]Error:[/] Resume not found. Run [cyan]verify[/cyan] first.")
         raise typer.Exit(1)
 
-    with console.status("[bold green]Parsing resume..."):
-        try:
-            resume_text = get_resume_text(config.RESUME_PATH)
-        except FileNotFoundError:
-            handle_error(
-                f"Resume not found at {config.RESUME_PATH}",
-                hint="Place your PDF at resume/resume.pdf",
-            )
-        except ValueError:
-            handle_error(
-                "Could not parse resume.",
-                hint="Try re-saving it as a text-based PDF.",
-            )
+    resume_text = _parse_resume_for_cli()
 
     job_description = get_job_description(file, url)
     if not job_description.strip():
@@ -331,19 +343,7 @@ def apply(
         console.print("[bold red]Error:[/] Resume not found. Run [cyan]verify[/cyan] first.")
         raise typer.Exit(1)
 
-    with console.status("[bold green]Parsing resume..."):
-        try:
-            resume_text = get_resume_text(config.RESUME_PATH)
-        except FileNotFoundError:
-            handle_error(
-                f"Resume not found at {config.RESUME_PATH}",
-                hint="Place your PDF at resume/resume.pdf",
-            )
-        except ValueError:
-            handle_error(
-                "Could not parse resume.",
-                hint="Try re-saving it as a text-based PDF.",
-            )
+    resume_text = _parse_resume_for_cli()
 
     job_description = get_job_description(file, url)
     if not job_description.strip():
