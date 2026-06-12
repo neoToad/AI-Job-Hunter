@@ -27,6 +27,9 @@ _HEADERS = [
     "Cover Letter Path",
 ]
 
+# openpyxl pattern: use read_only=True for pure reads (faster, safer) and
+# read_only=False (the default) for any mutation so the workbook can be saved.
+
 
 def _get_or_create_workbook(path: Path) -> Workbook:
     """Load an existing workbook or create a new one with bold headers.
@@ -39,7 +42,7 @@ def _get_or_create_workbook(path: Path) -> Workbook:
     """
     if path.exists():
         try:
-            wb = load_workbook(path)
+            wb = load_workbook(path, read_only=False)
             ws = wb.active
             # Ensure headers are present; if sheet is empty or malformed, recreate.
             if ws is None or ws.max_row == 0:
@@ -250,7 +253,8 @@ def update_status(path: Path, company: str, role: str, new_status: str) -> None:
     if not path.exists():
         raise FileNotFoundError(f"Tracker not found at {path}")
 
-    wb = load_workbook(path)
+    # Open read-write so we can save changes back to disk.
+    wb = load_workbook(path, read_only=False)
     ws = wb.active
     if ws is None:
         raise ValueError("Tracker workbook has no active sheet.")
@@ -311,7 +315,8 @@ def delete_application(path: Path, company: str, role: str) -> bool:
     if not path.exists():
         return False
 
-    wb = load_workbook(path)
+    # Open read-write so we can save changes back to disk.
+    wb = load_workbook(path, read_only=False)
     ws = wb.active
     if ws is None:
         return False
@@ -354,7 +359,8 @@ def edit_application(path: Path, company: str, role: str, field: str, value: str
     if field not in _EDITABLE_FIELDS:
         return False
 
-    wb = load_workbook(path)
+    # Open read-write so we can save changes back to disk.
+    wb = load_workbook(path, read_only=False)
     ws = wb.active
     if ws is None:
         return False

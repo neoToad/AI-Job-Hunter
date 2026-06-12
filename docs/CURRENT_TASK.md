@@ -1,13 +1,13 @@
 # Current Task
 
-## Prompt 35: Extract tracker delete/edit helpers
+## Prompt 36: Standardize load_workbook read-only usage
 
 **Status:** In progress
 
 **What I'm doing:**
-In `main.py`, extracting `_tracker_delete(company, role)` and `_tracker_edit(company, role, field, value)` from the `tracker()` command. Keeping the single Typer command entry point but delegating to the new helpers.
+In `utils/tracker.py`, ensuring `read_only=True` is used for pure reads (`application_exists`, `show_tracker`, `get_followups_due`) and explicitly opening read-write for mutations (`update_status`, `delete_application`, `edit_application`). Also adding a brief comment documenting the pattern. `add_application` uses `_get_or_create_workbook` which already handles creation properly.
 
 **Next step:**
-Edit `main.py`, run syntax check, commit with message `[Prompt 35] Extract tracker delete/edit helpers`, and push.
+Edit `utils/tracker.py`, run syntax check, commit with message `[Prompt 36] Standardize load_workbook read-only usage`, and push.
 
 **Blockers:** None.

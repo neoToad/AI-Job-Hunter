@@ -51,6 +51,14 @@ Branch: `main`
 - `tracker()` now delegates directly: `if delete: _tracker_delete(...); if edit: _tracker_edit(...)`.
 - No functional changes.
 
+## [Prompt 36] Standardize load_workbook read-only usage
+
+- Added a module-level comment documenting the openpyxl pattern: `read_only=True` for pure reads, `read_only=False` for mutations.
+- `application_exists`, `show_tracker`, and `get_followups_due` already used `read_only=True` — no changes needed.
+- Explicitly added `read_only=False` to `load_workbook` calls in `_get_or_create_workbook`, `update_status`, `delete_application`, and `edit_application` to document intent.
+- No functional changes — `read_only=False` is the openpyxl default; the explicit flag serves as a safety signal for future maintainers.
+
+
 
 
 
