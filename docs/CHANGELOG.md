@@ -137,4 +137,13 @@ Branch: `main`
   - `pythonpath = ["job_search_tool"]` so test imports mirror the app's import style.
   - `testpaths = ["tests"]` and `markers = ["ollama"]` for CI filtering.
 
+## [Step 9] Test `utils/resume_parser.py`
+
+- Created `tests/test_resume_parser.py` with five unit tests:
+  1. `test_parse_resume_multi_page` — mocks `pdfplumber.open` with two pages, verifies double-newline joining.
+  2. `test_parse_resume_file_not_found` — asserts `FileNotFoundError` for a non-existent path.
+  3. `test_parse_resume_empty_pdf` — mocks an empty page and asserts `ValueError`.
+  4. `test_parse_resume_image_page_warning` — mocks a mixed PDF (empty page + text page), asserts warning via `console.print` mock, and verifies extraction continues.
+  5. `test_preview_resume_length_cap` — mocks a 1000-char page and asserts `preview_resume(..., chars=50)` returns exactly 50 characters.
+
 
