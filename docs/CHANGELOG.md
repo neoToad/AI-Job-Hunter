@@ -60,3 +60,12 @@ Branch: `feature/job-search-followup`
 - Gracefully skipped corrupt date formats in `get_followups_due()` instead of crashing.
 - Added `update_status()` in `utils/tracker.py` with validated status enum.
 - Exposed `status` as new CLI command with `--company`, `--role`, `--status` options.
+
+### [Prompt 20] Final review and fixes
+- Added `OLLAMA_API_KEY` to `.env.example` to match `config.py` reads.
+- Updated `README.md` with `--dry-run` and `status` command documentation.
+- Truncated company/role names at 50 chars in `make_slug()` for safe filenames.
+- Verified no circular imports, all `Path` objects used consistently.
+- Confirmed `prompts/` directory has all 8 non-empty files.
+- Confirmed all CLI commands have help strings.
+- Ran `python main.py verify` — exits cleanly.
