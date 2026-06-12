@@ -1,14 +1,16 @@
 # Current Task
 
-## Step 1 — Phase A: Create `utils/renderers.py`
+## Step 2 — Phase A: Create `templates/resume.html`
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Creating the shared renderer module with two functions:
-- `render_resume_pdf(structured_resume: dict, path: Path) -> None`
-- `render_cover_letter_docx(text: str, path: Path) -> None`
+**What:** Creating a Jinja2 HTML template with a standard single-column resume layout:
+- Contact header block
+- Professional summary section
+- Experience entries with title, company, dates, and bullet points
+- Education entries
+- Skills list
+- CSS handles fonts, spacing, and page-break avoidance
 
-Each function includes graceful fallback to `.txt` if the required binary/library is missing.
-
-**Next:** Create `templates/resume.html` (Step 2).
+**Next:** Update `requirements.txt` (Step 3).
