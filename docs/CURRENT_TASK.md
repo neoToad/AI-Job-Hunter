@@ -1,14 +1,14 @@
 # Current Task
 
-## Step 6 — Phase B: Refactor `tailor_resume` chain
+## Step 7 — Phase B: Wire PDF rendering into pipeline
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating `chains/tailorer.py` to:
-- Use `JsonOutputParser` with `TailoredResume` Pydantic model
-- Catch `OutputParserException` and raise `ValueError` with friendly retry message
-- Return a structured dict instead of a plain string
-- Update the existing test to work with the new JSON response
+**What:** Updating `pipelines.py` to:
+- Import `render_resume_pdf` from `utils.renderers`
+- Change `resume_out` extension to `.pdf`
+- Replace `write_text()` for the resume with `render_resume_pdf()` when tailoring is active
+- Fall back to `.txt` when `skip_tailor=True` (original resume text is a string, not structured dict)
 
-**Next:** Wire PDF rendering into `pipelines.py` (Step 7).
+**Next:** Update CLI output labels in `main.py` (Step 8).

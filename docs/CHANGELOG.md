@@ -28,5 +28,12 @@ Branch: `feature/job-search-output-formats`
 - Added `ExperienceEntry` and `TailoredResume` Pydantic models in `chains/tailorer.py`.
 - Models mirror the planned JSON schema: contact, summary, experience, education, skills.
 
+## Step 6 — feat(chains): refactor tailor_resume to return structured JSON dict
+
+- Replaced `StrOutputParser` with `JsonOutputParser` using `TailoredResume` model.
+- Added `OutputParserException` handling that raises `ValueError("AI returned unexpected format...")`.
+- Updated `tailorer_system.txt` to remove inline JSON example (avoids LangChain f-string curly-brace conflicts).
+- Updated `test_tailorer.py` to assert dict return values and test malformed JSON path.
+
 <!-- New entries go below this line -->
 
