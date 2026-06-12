@@ -19,7 +19,7 @@ from chains.analyzer import JobAnalysis, analyze_job, validate_job_description
 from chains.cover_letter import generate_cover_letter
 from chains.followup import draft_followup
 from chains.tailorer import tailor_resume
-from utils.helpers import make_slug
+from utils.helpers import handle_error, make_slug
 from utils.resume_parser import parse_resume, preview_resume
 from utils.tracker import (
     add_application,
@@ -106,9 +106,16 @@ def verify() -> None:
 
     try:
         preview = preview_resume(config.RESUME_PATH, chars=300)
-    except Exception as exc:
-        console.print(f"[bold red]Error parsing resume:[/] {exc}")
-        raise typer.Exit(1)
+    except FileNotFoundError:
+        handle_error(
+            f"Resume not found at {config.RESUME_PATH}",
+            hint="Place your PDF at resume/resume.pdf",
+        )
+    except ValueError:
+        handle_error(
+            "Could not parse resume.",
+            hint="Try re-saving it as a text-based PDF.",
+        )
 
     console.print(f"[bold green]Resume OK[/] — {preview[:120]}...")
 
@@ -124,9 +131,16 @@ def verify() -> None:
         data = resp.json()
         models = data.get("models", [])
         model_names = [m.get("name") or m.get("model", "") for m in models]
+    except ConnectionError:
+        handle_error(
+            "Cannot reach Ollama.",
+            hint="Is it running? Try: ollama serve",
+        )
     except Exception as exc:
-        console.print(f"[bold red]Error:[/] Cannot reach Ollama at {tags_url} — {exc}")
-        raise typer.Exit(1)
+        handle_error(
+            f"Cannot reach Ollama at {tags_url} — {exc}",
+            hint="Run `python main.py verify` to check your setup.",
+        )
 
     if config.OLLAMA_MODEL in model_names:
         console.print(
@@ -150,9 +164,16 @@ def analyze() -> None:
     with console.status("[bold green]Parsing resume..."):
         try:
             resume_text = parse_resume(config.RESUME_PATH)
-        except Exception as exc:
-            console.print(f"[bold red]Error parsing resume:[/] {exc}")
-            raise typer.Exit(1)
+        except FileNotFoundError:
+            handle_error(
+                f"Resume not found at {config.RESUME_PATH}",
+                hint="Place your PDF at resume/resume.pdf",
+            )
+        except ValueError:
+            handle_error(
+                "Could not parse resume.",
+                hint="Try re-saving it as a text-based PDF.",
+            )
 
     job_description = _read_multiline_input()
     if not job_description.strip():
@@ -171,9 +192,16 @@ def analyze() -> None:
         progress.add_task(description="Analyzing job...", total=None)
         try:
             result = analyze_job(resume_text, job_description)
+        except ConnectionError:
+            handle_error(
+                "Cannot reach Ollama.",
+                hint="Is it running? Try: ollama serve",
+            )
         except Exception as exc:
-            console.print(f"[bold red]Error during analysis:[/] {exc}")
-            raise typer.Exit(1)
+            handle_error(
+                f"Error during analysis: {exc}",
+                hint="Run `python main.py verify` to check your setup.",
+            )
 
     _display_analysis(result)
 
@@ -241,9 +269,16 @@ def apply(
     with console.status("[bold green]Parsing resume..."):
         try:
             resume_text = parse_resume(config.RESUME_PATH)
-        except Exception as exc:
-            console.print(f"[bold red]Error parsing resume:[/] {exc}")
-            raise typer.Exit(1)
+        except FileNotFoundError:
+            handle_error(
+                f"Resume not found at {config.RESUME_PATH}",
+                hint="Place your PDF at resume/resume.pdf",
+            )
+        except ValueError:
+            handle_error(
+                "Could not parse resume.",
+                hint="Try re-saving it as a text-based PDF.",
+            )
 
     job_description = _read_multiline_input()
     if not job_description.strip():
@@ -262,9 +297,16 @@ def apply(
         progress.add_task(description="Analyzing job...", total=None)
         try:
             analysis = analyze_job(resume_text, job_description)
+        except ConnectionError:
+            handle_error(
+                "Cannot reach Ollama.",
+                hint="Is it running? Try: ollama serve",
+            )
         except Exception as exc:
-            console.print(f"[bold red]Error during analysis:[/] {exc}")
-            raise typer.Exit(1)
+            handle_error(
+                f"Error during analysis: {exc}",
+                hint="Run `python main.py verify` to check your setup.",
+            )
 
     _display_analysis(analysis)
 
@@ -307,9 +349,16 @@ def apply(
             progress.add_task(description="Tailoring resume...", total=None)
             try:
                 tailored_resume = tailor_resume(resume_text, job_description, analysis)
+            except ConnectionError:
+                handle_error(
+                    "Cannot reach Ollama.",
+                    hint="Is it running? Try: ollama serve",
+                )
             except Exception as exc:
-                console.print(f"[bold red]Error tailoring resume:[/] {exc}")
-                raise typer.Exit(1)
+                handle_error(
+                    f"Error tailoring resume: {exc}",
+                    hint="Run `python main.py verify` to check your setup.",
+                )
 
     # Generate cover letter
     with Progress(
@@ -320,9 +369,16 @@ def apply(
         progress.add_task(description="Generating cover letter...", total=None)
         try:
             cover_letter = generate_cover_letter(resume_text, job_description, analysis)
+        except ConnectionError:
+            handle_error(
+                "Cannot reach Ollama.",
+                hint="Is it running? Try: ollama serve",
+            )
         except Exception as exc:
-            console.print(f"[bold red]Error generating cover letter:[/] {exc}")
-            raise typer.Exit(1)
+            handle_error(
+                f"Error generating cover letter: {exc}",
+                hint="Run `python main.py verify` to check your setup.",
+            )
 
     # Save outputs
     slug = make_slug(analysis.company, analysis.role)
@@ -333,11 +389,10 @@ def apply(
         resume_out.write_text(tailored_resume, encoding="utf-8")
         cl_out.write_text(cover_letter, encoding="utf-8")
     except OSError as exc:
-        console.print(f"[bold red]Error saving files:[/] {exc}")
-        console.print(
-            f"[dim]Hint: Check that {config.OUTPUT_DIR} exists and is writable.[/dim]"
+        handle_error(
+            f"Error saving files: {exc}",
+            hint=f"Check that {config.OUTPUT_DIR} exists and is writable.",
         )
-        raise typer.Exit(1)
 
     # Optional source and notes
     source: str = typer.prompt("Source (e.g., LinkedIn, Indeed — press Enter to skip)", default="")
@@ -355,8 +410,10 @@ def apply(
             cover_letter_path=cl_out,
         )
     except Exception as exc:
-        console.print(f"[bold red]Error updating tracker:[/] {exc}")
-        raise typer.Exit(1)
+        handle_error(
+            f"Error updating tracker: {exc}",
+            hint="Run `python main.py verify` to check your setup.",
+        )
 
     console.print(
         Panel(
@@ -432,9 +489,16 @@ def followup(
         progress.add_task(description="Drafting follow-up...", total=None)
         try:
             email = draft_followup(company, role, date_applied)
+        except ConnectionError:
+            handle_error(
+                "Cannot reach Ollama.",
+                hint="Is it running? Try: ollama serve",
+            )
         except Exception as exc:
-            console.print(f"[bold red]Error drafting follow-up:[/] {exc}")
-            raise typer.Exit(1)
+            handle_error(
+                f"Error drafting follow-up: {exc}",
+                hint="Run `python main.py verify` to check your setup.",
+            )
 
     console.print(
         Panel(
@@ -455,8 +519,11 @@ def followup(
         try:
             path.write_text(email, encoding="utf-8")
             console.print(f"[green]Saved to[/] [cyan]{path}[/cyan]")
-        except Exception as exc:
-            console.print(f"[bold red]Error saving file:[/] {exc}")
+        except OSError as exc:
+            handle_error(
+                f"Error saving file: {exc}",
+                hint=f"Check that {config.OUTPUT_DIR} exists and is writable.",
+            )
 
 
 @app.command()

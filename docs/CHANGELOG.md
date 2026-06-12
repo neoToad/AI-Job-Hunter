@@ -29,3 +29,9 @@ Branch: `feature/job-search-followup`
 - When enabled, runs JD validation + analyzer, displays full results, then exits cleanly.
 - Skips tailorer, cover letter generator, file saves, and tracker update.
 - **Improvement beyond spec:** Printed dry-run completion inside a styled Rich Panel for consistency.
+
+### [Prompt 15] Refactor prompt templates to separate files
+- Created `prompts/` directory with 8 plain-text template files.
+- Extracted all hardcoded prompts from `analyzer`, `tailorer`, `cover_letter`, and `followup` chains.
+- Added `_load_prompt()` helper in each chain file to read templates from disk.
+- **Improvement beyond spec:** Prompts can now be edited without touching Python code, making A/B testing and iteration easier.
