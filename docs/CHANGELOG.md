@@ -33,5 +33,17 @@ Branch: `main`
   - `tracker()`: missing entry on delete or edit
 - User aborts (`--dry-run`, confirmation declines, empty input) continue to use `console.print(...)` + `raise typer.Exit(0)` as required by the spec.
 
+## [Prompt 34] Break apply() into sub-functions
+
+- Refactored `apply()` (~170 lines → ~40 lines) into four private helpers:
+  - `_gather_inputs(file, url)` — validates resume exists, parses it, resolves job description, and runs JD validation.
+  - `_run_analysis(resume_text, job_description)` — runs the analyzer chain via `_run_chain_with_spinner` and displays results.
+  - `_run_tailoring_and_cover_letter(analysis, resume_text, job_description, skip_tailor)` — handles both skip-tailor and concurrent tailor+CL paths.
+  - `_save_outputs(tailored_resume, cover_letter, analysis)` — writes files, prompts for source/notes, updates tracker, and prints the summary panel.
+- Moved `analyze_job` and `validate_job_description` imports to module level to fix a latent bug where `_maybe_validate_jd` relied on side-effect inline imports in callers.
+- Removed redundant inline imports from `analyze()`, `_gather_inputs`, and `_run_analysis`.
+- All user prompts, tracker updates, and duplicate checks are preserved exactly.
+
+
 
 

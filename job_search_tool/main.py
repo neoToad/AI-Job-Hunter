@@ -18,7 +18,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
 import config
-from chains.analyzer import JobAnalysis
+from chains.analyzer import JobAnalysis, analyze_job, validate_job_description
 from utils.helpers import fetch_url_text, handle_error, make_slug
 from utils.resume_parser import get_resume_text, preview_resume
 from utils.tracker import (
@@ -301,8 +301,6 @@ def analyze(
         console.print("[yellow]No job description provided — exiting.[/]")
         raise typer.Exit(0)
 
-    from chains.analyzer import analyze_job, validate_job_description
-
     if not _maybe_validate_jd(job_description):
         console.print("[yellow]Aborted.[/]")
         raise typer.Exit(0)
@@ -366,14 +364,16 @@ def _display_analysis(result: JobAnalysis) -> None:
         console.print(table)
 
 
-@app.command()
-def apply(
-    skip_tailor: bool = typer.Option(False, "--skip-tailor", help="Skip resume tailoring."),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Run analysis only — no files saved, no tracker updated."),
-    file: Path | None = typer.Option(None, "--file", help="Path to a plain-text file containing the job description."),
-    url: str | None = typer.Option(None, "--url", help="URL of a job posting to fetch and extract text from."),
-) -> None:
-    """Full pipeline: analyze, optionally tailor resume, generate cover letter, save, and log."""
+def _gather_inputs(file: Path | None, url: str | None) -> tuple[str, str]:
+    """Parse resume and resolve job description from *file*, *url*, or stdin.
+
+    Returns:
+        A tuple of ``(resume_text, job_description)``.
+
+    Raises:
+        typer.Exit: If the resume is missing, the job description is empty,
+            or validation fails and the user aborts.
+    """
     if not config.RESUME_PATH.exists():
         handle_error(
             "Resume not found. Run `verify` first.",
@@ -387,12 +387,19 @@ def apply(
         console.print("[yellow]No job description provided — exiting.[/]")
         raise typer.Exit(0)
 
-    from chains.analyzer import analyze_job, validate_job_description
-
     if not _maybe_validate_jd(job_description):
         console.print("[yellow]Aborted.[/]")
         raise typer.Exit(0)
 
+    return resume_text, job_description
+
+
+def _run_analysis(resume_text: str, job_description: str) -> JobAnalysis:
+    """Run the analyzer chain and display the results.
+
+    Returns:
+        The parsed ``JobAnalysis`` instance.
+    """
     analysis = _run_chain_with_spinner(
         "Analyzing job...",
         lambda: analyze_job(resume_text, job_description),
@@ -400,37 +407,29 @@ def apply(
     )
 
     _display_analysis(analysis)
+    return analysis
 
-    if dry_run:
-        console.print(
-            Panel(
-                "[bold yellow]Dry run complete[/] — no files saved and tracker not updated.",
-                border_style="yellow",
-            )
-        )
-        raise typer.Exit(0)
 
-    try:
-        cont = typer.confirm("Continue with this application?")
-    except typer.Abort:
-        console.print("[yellow]Aborted.[/]")
-        raise typer.Exit(0)
+def _run_tailoring_and_cover_letter(
+    analysis: JobAnalysis,
+    resume_text: str,
+    job_description: str,
+    skip_tailor: bool,
+) -> tuple[str, str]:
+    """Tailor the resume and generate a cover letter.
 
-    if not cont:
-        console.print("[yellow]Aborted.[/]")
-        raise typer.Exit(0)
+    Args:
+        analysis: The ``JobAnalysis`` from the analyzer chain.
+        resume_text: Full text of the original resume.
+        job_description: Full text of the job posting.
+        skip_tailor: If ``True``, skip resume tailoring.
 
-    # Duplicate check
-    if application_exists(config.TRACKER_PATH, analysis.company, analysis.role):
-        console.print(
-            "[bold yellow]Warning:[/] An application for this company + role "
-            "already exists in the tracker."
-        )
-
+    Returns:
+        A tuple of ``(tailored_resume, cover_letter)``.
+    """
     from chains.tailorer import tailor_resume
     from chains.cover_letter import generate_cover_letter
 
-    # Tailor resume and generate cover letter concurrently
     if skip_tailor:
         tailored_resume = resume_text
         console.print("[yellow]Skipped resume tailoring.[/]")
@@ -459,7 +458,21 @@ def apply(
             step_name="tailoring and cover letter generation",
         )
 
-    # Save outputs
+    return tailored_resume, cover_letter
+
+
+def _save_outputs(
+    tailored_resume: str,
+    cover_letter: str,
+    analysis: JobAnalysis,
+) -> None:
+    """Write files to disk, prompt for source/notes, and update the tracker.
+
+    Args:
+        tailored_resume: The tailored resume text.
+        cover_letter: The generated cover letter text.
+        analysis: The ``JobAnalysis`` containing company, role, and match score.
+    """
     slug = make_slug(analysis.company, analysis.role)
     resume_out = config.TAILORED_RESUMES_DIR / f"resume_{slug}"
     cl_out = config.COVER_LETTERS_DIR / f"cover_letter_{slug}"
@@ -473,11 +486,11 @@ def apply(
             hint=f"Check that {config.OUTPUT_DIR} exists and is writable.",
         )
 
-    # Optional source and notes
-    source: str = typer.prompt("Source (e.g., LinkedIn, Indeed — press Enter to skip)", default="")
+    source: str = typer.prompt(
+        "Source (e.g., LinkedIn, Indeed — press Enter to skip)", default=""
+    )
     notes: str = typer.prompt("Optional notes (press Enter to skip)", default="")
 
-    # Update tracker
     try:
         add_application(
             path=config.TRACKER_PATH,
@@ -504,6 +517,50 @@ def apply(
             border_style="green",
         )
     )
+
+
+@app.command()
+def apply(
+    skip_tailor: bool = typer.Option(False, "--skip-tailor", help="Skip resume tailoring."),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Run analysis only — no files saved, no tracker updated."),
+    file: Path | None = typer.Option(None, "--file", help="Path to a plain-text file containing the job description."),
+    url: str | None = typer.Option(None, "--url", help="URL of a job posting to fetch and extract text from."),
+) -> None:
+    """Full pipeline: analyze, optionally tailor resume, generate cover letter, save, and log."""
+    resume_text, job_description = _gather_inputs(file, url)
+    analysis = _run_analysis(resume_text, job_description)
+
+    if dry_run:
+        console.print(
+            Panel(
+                "[bold yellow]Dry run complete[/] — no files saved and tracker not updated.",
+                border_style="yellow",
+            )
+        )
+        raise typer.Exit(0)
+
+    try:
+        cont = typer.confirm("Continue with this application?")
+    except typer.Abort:
+        console.print("[yellow]Aborted.[/]")
+        raise typer.Exit(0)
+
+    if not cont:
+        console.print("[yellow]Aborted.[/]")
+        raise typer.Exit(0)
+
+    # Duplicate check
+    if application_exists(config.TRACKER_PATH, analysis.company, analysis.role):
+        console.print(
+            "[bold yellow]Warning:[/] An application for this company + role "
+            "already exists in the tracker."
+        )
+
+    tailored_resume, cover_letter = _run_tailoring_and_cover_letter(
+        analysis, resume_text, job_description, skip_tailor
+    )
+
+    _save_outputs(tailored_resume, cover_letter, analysis)
 
 
 @app.command()

@@ -1,13 +1,17 @@
 # Current Task
 
-## Prompt 33: Extract _run_chain_with_spinner and standardize error handling
+## Prompt 34: Break apply() into sub-functions
 
 **Status:** In progress
 
 **What I'm doing:**
-Creating `_run_chain_with_spinner(description: str, fn: Callable[[], T]) -> T` in `main.py` that wraps the `Progress(SpinnerColumn(), TextColumn(...))` context and generic `ConnectionError` / `Exception` handling. Replacing the ~6 duplicated Progress blocks across `analyze()`, `apply()`, and `followup()`. Also auditing the file to standardize on `handle_error()` for fatal errors and `console.print(...)` + `raise typer.Exit(0)` for user aborts.
+Refactoring `main.py:apply()` into four private helpers as specified in the refactor plan:
+- `_gather_inputs(file, url)` — parse resume + get job description + validate
+- `_run_analysis(resume_text, job_description)` — analyze + display, returns `JobAnalysis`
+- `_run_tailoring_and_cover_letter(analysis, resume_text, job_description, skip_tailor)` — returns `(tailored_resume, cover_letter)`
+- `_save_outputs(tailored_resume, cover_letter, analysis)` — write files + prompt for source/notes + update tracker + print summary
 
 **Next step:**
-Edit `main.py`, run syntax check, commit with message `[Prompt 33] Extract _run_chain_with_spinner and standardize error handling`, and push.
+Edit `main.py`, run syntax check, commit with message `[Prompt 34] Break apply() into sub-functions`, and push.
 
 **Blockers:** None.
