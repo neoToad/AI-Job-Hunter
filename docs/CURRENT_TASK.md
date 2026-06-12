@@ -1,14 +1,17 @@
 # Current Task
 
-## Step 4 — Phase B: Define `TailoredResume` Pydantic models
+## Step 5 — Phase B: Update `tailorer_system.txt` prompt
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Adding Pydantic models to `chains/tailorer.py`:
-- `ExperienceEntry` — title, company, dates, bullets
-- `TailoredResume` — contact, summary, experience, education, skills
+**What:** Updating the system prompt to instruct the LLM to return valid JSON with keys:
+- contact
+- summary
+- experience
+- education
+- skills
 
-These models will be used by `JsonOutputParser` in Step 6.
+And to forbid Markdown and plain text.
 
-**Next:** Update `tailorer_system.txt` prompt (Step 5).
+**Next:** Refactor `tailor_resume` chain to use JsonOutputParser (Step 6).

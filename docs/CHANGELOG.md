@@ -23,5 +23,10 @@ Branch: `feature/job-search-output-formats`
 - Added `Jinja2==3.1.6`, `pdfkit==1.0.0`, and `python-docx==1.1.2`.
 - Added comment documenting the non-Pip `wkhtmltopdf` binary prerequisite.
 
+## Step 4 — feat(chains): add TailoredResume and ExperienceEntry Pydantic models
+
+- Added `ExperienceEntry` and `TailoredResume` Pydantic models in `chains/tailorer.py`.
+- Models mirror the planned JSON schema: contact, summary, experience, education, skills.
+
 <!-- New entries go below this line -->
 
