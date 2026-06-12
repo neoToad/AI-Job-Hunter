@@ -1,5 +1,2 @@
-Company: {company}
-Role: {role}
-Date Applied: {date_applied}
-
-Draft the follow-up email now.
+I applied for the {role} position at {company} on {date_applied}.
+I have not heard back yet. Please write a follow-up email.

@@ -3,6 +3,3 @@ RESUME:
 
 JOB DESCRIPTION:
 {job_description}
-
-Return your analysis as JSON matching this schema:
-{format_instructions}

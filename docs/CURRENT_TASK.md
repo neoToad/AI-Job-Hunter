@@ -1,8 +1,9 @@
 # Current Task
 
-## Create Long Horizon Prompt for Prompts 21–30
+## Prompt 21 — Fix: Explicit Prompt File Contents
 
 **What I'm actively working on:**
-Created `docs/prompts/job_search_tool_long_horizon_prompt_21_30.md` — a comprehensive long-horizon prompt that references the three spec files (`job_search_tool_prompts_21_24.md`, `job_search_tool_prompts_25_27.md`, `job_search_tool_prompts_28_30.md`) and provides an AI agent with full instructions to execute all 10 prompts sequentially.
+Overwriting all 8 `prompts/*.txt` files with the exact content specified in the spec. Then verifying that each chain file correctly loads its corresponding prompt files and that all `{placeholder}` variables match what the chain actually passes in.
 
-**Status:** Complete. Committing now.
+**Next step:**
+After verification, stage, commit, and push. Then move to Prompt 22.

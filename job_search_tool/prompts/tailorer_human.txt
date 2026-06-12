@@ -4,10 +4,10 @@ ORIGINAL RESUME:
 JOB DESCRIPTION:
 {job_description}
 
-MUST-HAVE REQUIREMENTS:
+KEY REQUIREMENTS TO TARGET:
 {must_have}
 
-MATCHING SKILLS FROM THE CANDIDATE:
+MATCHING SKILLS TO EMPHASIZE:
 {matching_skills}
 
-Rewrite the resume above so it speaks directly to this job posting while remaining 100% truthful.
+Rewrite the resume to better match this role.

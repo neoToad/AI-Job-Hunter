@@ -7,10 +7,10 @@ JOB DESCRIPTION:
 COMPANY: {company}
 ROLE: {role}
 
-MUST-HAVE REQUIREMENTS:
+KEY REQUIREMENTS TO ADDRESS:
 {must_have}
 
-MATCHING SKILLS FROM THE CANDIDATE:
+CANDIDATE'S MATCHING STRENGTHS:
 {matching_skills}
 
-Write the cover letter now. Keep it under 400 words and 3–4 paragraphs.
+Write a tailored cover letter for this specific role.
