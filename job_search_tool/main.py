@@ -5,10 +5,12 @@ Provides Typer commands: verify, analyze, apply, followup, tracker.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import requests
 import typer
+from bs4 import BeautifulSoup
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
@@ -33,19 +35,79 @@ app = typer.Typer(help="Job search automation CLI.")
 console = Console()
 
 
-def _read_multiline_input(prompt_text: str = "Paste job description (type END on its own line to finish):") -> str:
-    """Read lines from stdin until the user enters ``END`` on a blank line."""
-    console.print(f"[bold cyan]{prompt_text}[/bold cyan]")
-    lines: list[str] = []
-    while True:
+def _read_stdin() -> str:
+    """Read the full job description from stdin until EOF."""
+    console.print(
+        "[bold cyan]Paste job description, then press Ctrl+D (Mac/Linux) or Ctrl+Z (Windows) when done:[/bold cyan]"
+    )
+    try:
+        return sys.stdin.read()
+    except (EOFError, KeyboardInterrupt):
+        return ""
+
+
+def get_job_description(file: Path | None, url: str | None) -> str:
+    """Resolve a job description from *file*, *url*, or stdin.
+
+    Args:
+        file: Path to a plain-text file containing the job description.
+        url: URL of a job posting to fetch and extract text from.
+
+    Returns:
+        The resolved job description string.
+
+    Raises:
+        typer.Exit: If the file cannot be read, the URL is invalid,
+            or the fetched page contains fewer than 200 characters.
+    """
+    if file is not None:
         try:
-            line = input()
-        except (EOFError, KeyboardInterrupt):
-            break
-        if line.strip() == "END":
-            break
-        lines.append(line)
-    return "\n".join(lines)
+            return file.read_text(encoding="utf-8")
+        except OSError as exc:
+            handle_error(f"Cannot read file: {exc}")
+
+    if url is not None:
+        if not url.startswith(("http://", "https://")):
+            handle_error(
+                f"Invalid URL: {url}",
+                hint="URL must start with http:// or https://",
+            )
+
+        try:
+            resp = requests.get(url, timeout=10)
+            resp.raise_for_status()
+        except requests.Timeout:
+            handle_error(
+                f"Request to {url} timed out.",
+                hint="Try again later or use --file instead.",
+            )
+        except requests.RequestException as exc:
+            handle_error(
+                f"Failed to fetch URL: {exc}",
+                hint="Check the URL and your network connection.",
+            )
+
+        soup = BeautifulSoup(resp.text, "lxml")
+        # Remove non-content tags
+        for tag_name in ("script", "style", "nav", "header", "footer"):
+            for tag in soup.find_all(tag_name):
+                tag.decompose()
+
+        text = soup.get_text(separator="\n", strip=True)
+        # Deduplicate blank lines
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        cleaned = "\n".join(lines)
+
+        if len(cleaned) < 200:
+            console.print(
+                f"[bold yellow]Warning:[/] Extracted only {len(cleaned)} characters from the page. "
+                "The job description may be hidden behind JavaScript or loaded dynamically."
+            )
+
+        return cleaned
+
+    # Default: stdin
+    return _read_stdin()
 
 
 def _maybe_validate_jd(job_description: str) -> bool:
@@ -159,7 +221,10 @@ def verify() -> None:
 
 
 @app.command()
-def analyze() -> None:
+def analyze(
+    file: Path | None = typer.Option(None, "--file", help="Path to a plain-text file containing the job description."),
+    url: str | None = typer.Option(None, "--url", help="URL of a job posting to fetch and extract text from."),
+) -> None:
     """Parse resume, prompt for a job description, and display a structured analysis."""
     if not config.RESUME_PATH.exists():
         console.print("[bold red]Error:[/] Resume not found. Run [cyan]verify[/cyan] first.")
@@ -179,7 +244,7 @@ def analyze() -> None:
                 hint="Try re-saving it as a text-based PDF.",
             )
 
-    job_description = _read_multiline_input()
+    job_description = get_job_description(file, url)
     if not job_description.strip():
         console.print("[yellow]No job description provided — exiting.[/]")
         raise typer.Exit(0)
@@ -264,6 +329,8 @@ def _display_analysis(result: JobAnalysis) -> None:
 def apply(
     skip_tailor: bool = typer.Option(False, "--skip-tailor", help="Skip resume tailoring."),
     dry_run: bool = typer.Option(False, "--dry-run", help="Run analysis only — no files saved, no tracker updated."),
+    file: Path | None = typer.Option(None, "--file", help="Path to a plain-text file containing the job description."),
+    url: str | None = typer.Option(None, "--url", help="URL of a job posting to fetch and extract text from."),
 ) -> None:
     """Full pipeline: analyze, optionally tailor resume, generate cover letter, save, and log."""
     if not config.RESUME_PATH.exists():
@@ -284,7 +351,7 @@ def apply(
                 hint="Try re-saving it as a text-based PDF.",
             )
 
-    job_description = _read_multiline_input()
+    job_description = get_job_description(file, url)
     if not job_description.strip():
         console.print("[yellow]No job description provided — exiting.[/]")
         raise typer.Exit(0)
