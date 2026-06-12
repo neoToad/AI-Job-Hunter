@@ -16,7 +16,7 @@ from chains.analyzer import JobAnalysis, analyze_job
 from chains.cover_letter import generate_cover_letter
 from chains.tailorer import tailor_resume
 from utils.helpers import make_slug
-from utils.renderers import render_resume_pdf
+from utils.renderers import render_cover_letter_docx, render_resume_pdf
 from utils.tracker import add_application
 
 import config
@@ -111,7 +111,7 @@ def run_apply_pipeline(
     _emit(PipelineStep.SAVING)
     slug = make_slug(analysis.company, analysis.role)
     resume_out = config.TAILORED_RESUMES_DIR / f"resume_{slug}.pdf"
-    cl_out = config.COVER_LETTERS_DIR / f"cover_letter_{slug}"
+    cl_out = config.COVER_LETTERS_DIR / f"cover_letter_{slug}.docx"
 
     if skip_tailor:
         # Original resume text is a string; fall back to plain text.
@@ -119,7 +119,7 @@ def run_apply_pipeline(
         resume_out.write_text(tailored_resume, encoding="utf-8")
     else:
         render_resume_pdf(tailored_resume, resume_out)
-    cl_out.write_text(cover_letter, encoding="utf-8")
+    render_cover_letter_docx(cover_letter, cl_out)
 
     # --- Step 4: Update tracker ----------------------------------------------
     add_application(

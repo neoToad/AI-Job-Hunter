@@ -41,5 +41,11 @@ Branch: `feature/job-search-output-formats`
 - Updated `followup` command in `main.py` to explicitly append `.txt` when saving follow-up emails.
 - The `apply()` summary panel already displays the correct extension via the dynamic path.
 
+## Step 9 — feat(ui): replace editable resume text area with PDF download button in Streamlit
+
+- Stored `saved_paths` in Streamlit session state after pipeline completion.
+- Replaced the "Tailored Resume" editable text area with a `st.download_button` for the generated `.pdf`.
+- Added fallback info message when the PDF file is not found.
+
 <!-- New entries go below this line -->
 

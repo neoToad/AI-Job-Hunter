@@ -1,13 +1,13 @@
 # Current Task
 
-## Step 9 — Phase B: Update Streamlit resume UI
+## Step 10 — Phase C: Wire DOCX rendering into pipeline
 
 **Status:** In progress  
 **Branch:** `feature/job-search-output-formats`
 
-**What:** Updating `app.py` to:
-- Store `saved_paths` in session state after pipeline completion
-- Replace the editable "Tailored Resume" text area with a download button for the `.pdf`
-- Keep a read-only preview of the resume dict using `st.json` or formatted markdown
+**What:** Updating `pipelines.py` to:
+- Import `render_cover_letter_docx` from `utils.renderers`
+- Change `cl_out` extension to `.docx`
+- Replace `write_text()` for the cover letter with `render_cover_letter_docx()`
 
-**Next:** Wire DOCX rendering into pipeline (Step 10).
+**Next:** Update CLI output labels for cover letter in `main.py` (Step 11).
