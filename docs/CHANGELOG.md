@@ -45,3 +45,22 @@ Replaced the old "paste until END" input with a proper `--file` / `--url` / stdi
 - None
 
 ---
+
+### [Prompt 23] Add tracker delete and edit subcommands
+
+**What was built:**
+Added CRUD operations to the application tracker:
+- `delete_application(path, company, role)` in `utils/tracker.py` — finds row by company+role (case-insensitive), deletes it, saves workbook
+- `edit_application(path, company, role, field, value)` in `utils/tracker.py` — finds row, updates the specified column, saves workbook
+- `tracker --delete --company "X" --role "Y"` in `main.py` — asks for y/n confirmation before deleting
+- `tracker --edit --company "X" --role "Y" --field "Notes" --value "Z"` in `main.py` — prints confirmation of what was changed
+- Valid editable fields: Source, Match Score, Status, Follow-up Date, Notes, Cover Letter Path
+
+**Refactors/improvements:**
+- Reused existing `application_exists()` for pre-delete existence check so the confirmation prompt happens before any mutation
+- Added clear error hints when required flags are missing for --delete or --edit
+
+**Deviations:**
+- None
+
+---
