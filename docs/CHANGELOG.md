@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-06-11 — feat: Full Typer CLI entry point (Prompt 9)
+
+- Rewrote `main.py` as a complete Typer app with Rich formatting and `SpinnerColumn` progress indicators
+- `verify`: checks resume PDF parseability via `preview_resume`, hits Ollama `/api/tags` with optional Bearer auth, confirms configured model exists
+- `analyze`: reads multi-line job description until `END`, runs `analyze_job()`, displays match score in color (green ≥70, yellow ≥50, red <50), matching skills with ✔, missing skills with ✘, red flags with ⚠, plus must-have / nice-to-have tables
+- `apply`: full pipeline — parse → collect JD → analyze → confirm → duplicate check → optional tailor (`--skip-tailor`) → generate cover letter → save to `output/` with `make_slug` filenames → optional notes → update tracker → print summary panel
+- `followup`: supports `--company/--role/--date` or interactive picker from `get_followups_due()` with numbered selection; drafts email and offers to save
+- `tracker --show`: displays tracker via `show_tracker()`
+- Added `utils/helpers.py` with `make_slug(company, role)` — lowercase, spaces→underscores, slashes→dashes
+
 ## 2026-06-11 — feat: Follow-up Email Chain (Prompt 8)
 
 - Implemented `chains/followup.py` with `draft_followup(company, role, date_applied)`

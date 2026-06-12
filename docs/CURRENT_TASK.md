@@ -1,19 +1,19 @@
 # Current Task
 
-## Step: Prompt 8 — Follow-up Email Chain
+## Step: Prompt 10 — Wiring & Testing + README
 
 ### What I'm actively working on
-- Implementing `chains/followup.py` with:
-  - `draft_followup(company: str, role: str, date_applied: str) -> str`
-  - ChatPromptTemplate taking company, role, and date_applied
-  - Instructs LLM to write a polite follow-up email under 100 words
-  - Explicitly says not to be pushy or grovel
-  - Should reference the specific role and ask politely about the timeline
-  - Temperature 0.4
-  - Return plain string via StrOutputParser
+- Review all files in `job_search_tool/` for:
+  1. Correct and consistent imports (config as module, pathlib.Path)
+  2. Every chain file imports `get_llm` from `chains.llm`
+  3. Tracker correctly handles missing `tracker.xlsx`
+  4. `main.py` handles exceptions gracefully (no raw tracebacks on resume/Ollama failures)
+  5. Output slug helper is used consistently (`make_slug`)
+- Fix any issues found
+- Write `README.md` with setup instructions, Ollama local/cloud guides, and CLI examples
 
 ### Next step after this
-- Prompt 9: Build full Typer CLI in `main.py` (verify, analyze, apply, followup, tracker)
+- Final review, push branch, confirm all commits
 
 ### Blockers
 - None.

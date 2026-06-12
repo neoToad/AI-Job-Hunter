@@ -267,7 +267,8 @@ def apply(
         console.print(f"[bold red]Error saving files:[/] {exc}")
         raise typer.Exit(1)
 
-    # Optional notes
+    # Optional source and notes
+    source: str = typer.prompt("Source (e.g., LinkedIn, Indeed — press Enter to skip)", default="")
     notes: str = typer.prompt("Optional notes (press Enter to skip)", default="")
 
     # Update tracker
@@ -276,7 +277,7 @@ def apply(
             path=config.TRACKER_PATH,
             company=analysis.company,
             role=analysis.role,
-            source="",
+            source=source,
             match_score=analysis.match_score,
             notes=notes,
             cover_letter_path=cl_out,
@@ -394,7 +395,9 @@ def tracker(
     if show:
         show_tracker(config.TRACKER_PATH)
     else:
-        show_tracker(config.TRACKER_PATH)
+        console.print(
+            "Use [cyan]tracker --show[/cyan] to display the full tracker table."
+        )
 
 
 if __name__ == "__main__":
