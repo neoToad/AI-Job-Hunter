@@ -113,30 +113,19 @@ if mode == "Analyze Job" and "analyze_result" in st.session_state:
 
     st.markdown(f"**Summary:** {result.summary}")
 
-    if result.must_have:
-        with st.expander("Must-Have Requirements"):
-            for req in result.must_have:
-                st.write(f"- {req}")
+    _SECTION_TITLES = {
+        "must_have": "Must-Have Requirements",
+        "matching_skills": "Matching Skills",
+        "missing_skills": "Missing Skills",
+        "red_flags": "Red Flags",
+        "nice_to_have": "Nice-to-Have",
+    }
 
-    if result.matching_skills:
-        with st.expander("Matching Skills"):
-            for skill in result.matching_skills:
-                st.write(f"- {skill}")
-
-    if result.missing_skills:
-        with st.expander("Missing Skills"):
-            for skill in result.missing_skills:
-                st.write(f"- {skill}")
-
-    if result.red_flags:
-        with st.expander("Red Flags"):
-            for flag in result.red_flags:
-                st.write(f"- {flag}")
-
-    if result.nice_to_have:
-        with st.expander("Nice-to-Have"):
-            for req in result.nice_to_have:
-                st.write(f"- {req}")
+    for key, items in result.to_display_dict().items():
+        if items:
+            with st.expander(_SECTION_TITLES[key]):
+                for item in items:
+                    st.write(f"- {item}")
 
 # --- Full Application mode ---------------------------------------------------
 

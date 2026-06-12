@@ -1,13 +1,13 @@
 # Current Task
 
-## Prompt 36: Standardize load_workbook read-only usage
+## Prompt 38: Shared analysis display formatter
 
 **Status:** In progress
 
 **What I'm doing:**
-In `utils/tracker.py`, ensuring `read_only=True` is used for pure reads (`application_exists`, `show_tracker`, `get_followups_due`) and explicitly opening read-write for mutations (`update_status`, `delete_application`, `edit_application`). Also adding a brief comment documenting the pattern. `add_application` uses `_get_or_create_workbook` which already handles creation properly.
+Adding a `JobAnalysis.to_display_dict()` method in `chains/analyzer.py` that returns a structured dict of list-based sections (`must_have`, `matching_skills`, `missing_skills`, `red_flags`, `nice_to_have`). Then updating `main.py:_display_analysis()` and `app.py:analyze mode` to render from this shared formatter, removing duplicated field-access logic.
 
 **Next step:**
-Edit `utils/tracker.py`, run syntax check, commit with message `[Prompt 36] Standardize load_workbook read-only usage`, and push.
+Edit `chains/analyzer.py`, `main.py`, and `app.py`, run syntax checks, commit with message `[Prompt 38] Shared analysis display formatter`, and push.
 
 **Blockers:** None.

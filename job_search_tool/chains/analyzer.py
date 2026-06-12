@@ -33,6 +33,20 @@ class JobAnalysis(BaseModel):
     )
     summary: str = Field(description="Brief plain-English summary of the fit.")
 
+    def to_display_dict(self) -> dict[str, list[str]]:
+        """Return a structured dict of list-based sections for rendering.
+
+        Keys: ``must_have``, ``matching_skills``, ``missing_skills``,
+        ``red_flags``, ``nice_to_have``.
+        """
+        return {
+            "must_have": self.must_have,
+            "matching_skills": self.matching_skills,
+            "missing_skills": self.missing_skills,
+            "red_flags": self.red_flags,
+            "nice_to_have": self.nice_to_have,
+        }
+
 
 _SIGNALS = [
     "responsibilities",

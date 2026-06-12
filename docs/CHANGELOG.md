@@ -68,6 +68,15 @@ Branch: `main`
 - Refactored `app.py:Full Application` mode to call `run_apply_pipeline()` with a step callback that maps each `PipelineStep` to a `st.progress()` percentage.
 - Removed now-unused `asyncio`, `make_slug`, and `add_application` imports from `app.py`.
 
+## [Prompt 38] Shared analysis display formatter
+
+- Added `JobAnalysis.to_display_dict() -> dict[str, list[str]]` in `chains/analyzer.py` that returns a structured dict of list-based sections.
+- Added `_SECTION_STYLES` mapping and `_render_bullet_table(title, items, icon)` helper in `main.py` to eliminate repetitive Rich table-building logic.
+- Refactored `main.py:_display_analysis()` to iterate over `result.to_display_dict()` instead of 5 separate `if result.x:` blocks.
+- Refactored `app.py:analyze mode` to iterate over `result.to_display_dict()` with a `_SECTION_TITLES` mapping, replacing 5 separate `if result.x:` blocks.
+- Both CLI and Streamlit now render from the same structured data source, with each UI layer handling its own presentation (Rich tables vs Streamlit expanders).
+
+
 
 
 

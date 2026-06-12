@@ -314,6 +314,32 @@ def analyze(
     _display_analysis(result)
 
 
+_SECTION_STYLES: dict[str, tuple[str, str]] = {
+    "matching_skills": ("Matching Skills", "[green]✔[/green]"),
+    "missing_skills": ("Missing Skills", "[red]✘[/red]"),
+    "red_flags": ("Red Flags", "[yellow]⚠[/yellow]"),
+    "must_have": ("Must-Have Requirements", ""),
+    "nice_to_have": ("Nice-to-Have", ""),
+}
+
+
+def _render_bullet_table(title: str, items: list[str], icon: str = "") -> None:
+    """Print a Rich table with one bullet per row.
+
+    Args:
+        title: Table title.
+        items: List of strings to render as rows.
+        icon: Optional icon/prefix rendered in its own column (e.g. ``[green]✔[/green]``).
+    """
+    table = Table(title=title, show_header=False)
+    for item in items:
+        if icon:
+            table.add_row(icon, item)
+        else:
+            table.add_row(item)
+    console.print(table)
+
+
 def _display_analysis(result: JobAnalysis) -> None:
     """Render a JobAnalysis with Rich formatting."""
     score_color = "green" if result.match_score >= 70 else "yellow" if result.match_score >= 50 else "red"
@@ -333,35 +359,11 @@ def _display_analysis(result: JobAnalysis) -> None:
         )
     )
 
-    if result.matching_skills:
-        table = Table(title="Matching Skills", show_header=False)
-        for skill in result.matching_skills:
-            table.add_row("[green]✔[/green]", skill)
-        console.print(table)
-
-    if result.missing_skills:
-        table = Table(title="Missing Skills", show_header=False)
-        for skill in result.missing_skills:
-            table.add_row("[red]✘[/red]", skill)
-        console.print(table)
-
-    if result.red_flags:
-        table = Table(title="Red Flags", show_header=False)
-        for flag in result.red_flags:
-            table.add_row("[yellow]⚠[/yellow]", flag)
-        console.print(table)
-
-    if result.must_have:
-        table = Table(title="Must-Have Requirements", show_header=False)
-        for req in result.must_have:
-            table.add_row(req)
-        console.print(table)
-
-    if result.nice_to_have:
-        table = Table(title="Nice-to-Have", show_header=False)
-        for req in result.nice_to_have:
-            table.add_row(req)
-        console.print(table)
+    display = result.to_display_dict()
+    for key, items in display.items():
+        if items:
+            title, icon = _SECTION_STYLES[key]
+            _render_bullet_table(title, items, icon)
 
 
 def _gather_inputs(file: Path | None, url: str | None) -> tuple[str, str]:
