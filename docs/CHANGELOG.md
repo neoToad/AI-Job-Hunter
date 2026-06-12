@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-06-11 — feat: Resume Tailorer Chain (Prompt 6)
+
+- Implemented `chains/tailorer.py` with `tailor_resume(resume, job_description, analysis)`
+- Uses ChatPromptTemplate + StrOutputParser at temperature 0.2
+- Instructs LLM to rewrite bullet points using job-posting keywords, preserve all resume sections, and use strong action verbs
+- Explicitly forbids inventing experience or skills the candidate does not have
+- Consumes `JobAnalysis.must_have` and `JobAnalysis.matching_skills` for context
+
 ## 2026-06-11 — feat: Job Analyzer Chain (Prompt 5)
 
 - Implemented `chains/analyzer.py` with `JobAnalysis` Pydantic model

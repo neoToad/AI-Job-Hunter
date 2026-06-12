@@ -1,19 +1,19 @@
 # Current Task
 
-## Step: Prompt 6 — Resume Tailorer Chain
+## Step: Prompt 7 — Cover Letter Chain
 
 ### What I'm actively working on
-- Implementing `chains/tailorer.py` with:
-  - `tailor_resume(resume: str, job_description: str, analysis: JobAnalysis) -> str`
-  - ChatPromptTemplate taking original resume, job description, must-have requirements, and matching skills
-  - Instructs LLM to rewrite bullet points using keywords from the job posting
-  - Explicitly forbids inventing experience the candidate doesn't have
-  - Tells the model to preserve all resume sections and use strong action verbs
-  - Temperature 0.2
+- Implementing `chains/cover_letter.py` with:
+  - `generate_cover_letter(resume: str, job_description: str, analysis: JobAnalysis) -> str`
+  - ChatPromptTemplate taking resume, job description, company, role, must-have requirements, and matching skills
+  - Instructs LLM to write a 3–4 paragraph cover letter under 400 words
+  - Explicitly forbids generic filler phrases like "I am excited to apply" or "I am a team player"
+  - Instructs model to map specific resume evidence to specific job requirements
+  - Temperature 0.5 for more natural writing
   - Return plain string via StrOutputParser
 
 ### Next step after this
-- Prompt 7: Cover Letter Chain (`chains/cover_letter.py`)
+- Prompt 8: Follow-up Email Chain (`chains/followup.py`)
 
 ### Blockers
 - None.
